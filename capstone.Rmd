@@ -15,8 +15,48 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+```{r }
+library(dplyr)
+library(plyr)
+library(readxl)
+library(tidyr)
+
+ndd <- read_excel("/Users/noahwolthausen/Desktop/Capstone/NDD.Master.xlsx")
+
+#Need to gather all variables
+
+#combine all drink variables
+
+ndd$drink_cat <- ifelse(ndd$drink_bottled == 1,1,
+                (ifelse(ndd$drink_public == 1,2, 
+                (ifelse(ndd$drink_spring == 1,3,
+                (ifelse(ndd$drink_tab == 1,4,
+                (ifelse(ndd$drink_tanker == 1,5, 
+                (ifelse(ndd$drink_well == 1,6, 
+                (ifelse(ndd$drink_other == 1,7, NA)))))))))))))
+
+
+as.factor(ndd$drink_cat, 
+          levels((1:7),
+          labels(c("Bottled", "Public pump", "Spring",
+                   "Tap","Tanker","Well","Other"))))
+
+
+table(ndd$drink_cat)
+
+#combine all wash
+ndd$wash_cat <- ifelse(ndd$wash_bottled == 1,1,
+                (ifelse(ndd$wash_publis == 1,2, 
+                (ifelse(ndd$wash_spring == 1,3,
+                (ifelse(ndd$wash_tab == 1,4,
+                (ifelse(ndd$wash_well == 1,5, 
+                (ifelse(ndd$wash_tanker == 1,6, 
+                (ifelse(ndd$wash_other == 1,7, NA)))))))))))))
+table(ndd$wash_cat)
+
+table(ndd$diarrhea_b)
+table(ndd$diarrhea_fu)
+table(ndd$diarrhea_seekcare_yn_b)
 ```
 
 ## Including Plots
