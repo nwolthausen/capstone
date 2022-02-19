@@ -36,10 +36,9 @@ ndd$drink_cat <- ifelse(ndd$drink_bottled == 1,1,
                 (ifelse(ndd$drink_other == 1,7, NA)))))))))))))
 
 
-as.factor(ndd$drink_cat, 
-          levels((1:7),
-          labels(c("Bottled", "Public pump", "Spring",
-                   "Tap","Tanker","Well","Other"))))
+ndd$drink_cat <- factor(ndd$drink_cat, levels = c(1:7), 
+                                      labels = c("Bottled","Public pump","Spring",
+                                              "Tap","Tanker","Well","Other"))
 
 
 table(ndd$drink_cat)
@@ -52,11 +51,61 @@ ndd$wash_cat <- ifelse(ndd$wash_bottled == 1,1,
                 (ifelse(ndd$wash_well == 1,5, 
                 (ifelse(ndd$wash_tanker == 1,6, 
                 (ifelse(ndd$wash_other == 1,7, NA)))))))))))))
-table(ndd$wash_cat)
 
-table(ndd$diarrhea_b)
-table(ndd$diarrhea_fu)
-table(ndd$diarrhea_seekcare_yn_b)
+ndd$wash_cat <- factor(ndd$wash_cat, levels = c(1:7), 
+                       labels = c("Bottled","Public pump","Spring",
+                                              "Tap","Tanker","Well","Other"))
+
+#factor and label toilet type
+ndd$toilet_type <- factor(ndd$toilet_type, levels = c(1:9), 
+                              labels = c("Automatic toilet",
+                                         "Ventilated improved pit latrine",
+                                         "Pit latrine with slab",
+                                         "Pit latrine without slabs",
+                                         "Composting toilet","Bucket toilet",
+                                         "Hanging toilet","Bush","River/stream"))
+
+
+#making micronutrient groups
+
+ndd$micro_zinc <- ifelse(ndd$fish >= 1,1,
+                  ifelse(ndd$milk >= 1,1,
+                  ifelse(ndd$yogurt >= 1,1,
+                  ifelse(ndd$flesh_meat >= 1,1,
+                  ifelse(ndd$beans >= 1,1,
+                  ifelse(ndd$pumpkins >= 1,1,
+                  ifelse(ndd$zinc == 1,1,0)))))))
+
+table(ndd$micro_zinc)
+
+ndd$micro_iron <- ifelse(ndd$beans >= 1,1,
+                  ifelse(ndd$darkgreen_vegetables >= 1,1,
+                  ifelse(ndd$tomato >= 1,1,
+                  ifelse(ndd$flesh_meat >= 1,1,
+                  ifelse(ndd$potatoes >= 1,1,
+                  ifelse(ndd$eggs >= 1,1,
+                  ifelse(ndd$iron == 1,1,
+                  ifelse(ndd$chicken...89 >= 1,1,0))))))))
+table(ndd$micro_iron)
+
+ndd$micro_vitamind <- ifelse(ndd$milk >= 1,1,
+                      ifelse(ndd$fish >= 1,1,
+                      ifelse(ndd$eggs >= 1,1,
+                      ifelse(ndd$chicken...89 >= 1,1,0))))
+table(ndd$micro_vitamind)
+
+ndd$micro_vitamina <- ifelse(ndd$darkgreen_vegetables >= 1,1,
+                      ifelse(ndd$pumpkins >= 1,1,
+                      ifelse(ndd$mango >= 1,1,
+                      ifelse(ndd$milk >= 1,1,
+                      ifelse(ndd$chicken...89 >= 1,1,
+                      ifelse(ndd$beans >= 1,1,
+                      ifelse(ndd$tomato >= 1,1,
+                      ifelse(ndd$fish >= 1,1,
+                      ifelse(ndd$eggs >= 1,1,0)))))))))
+table(ndd$micro_vitamina)
+
+
 ```
 
 ## Including Plots
