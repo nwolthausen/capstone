@@ -26,7 +26,6 @@ ndd <- read_excel("/Users/noahwolthausen/Desktop/Capstone/NDD.Master.xlsx")
 #Need to gather all variables
 
 #combine all drink variables
-
 ndd$drink_cat <- ifelse(ndd$drink_bottled == 1,1,
                 (ifelse(ndd$drink_public == 1,2, 
                 (ifelse(ndd$drink_spring == 1,3,
@@ -39,6 +38,7 @@ ndd$drink_cat <- ifelse(ndd$drink_bottled == 1,1,
 ndd$drink_cat <- factor(ndd$drink_cat, levels = c(1:7), 
                                       labels = c("Bottled","Public pump","Spring",
                                               "Tap","Tanker","Well","Other"))
+label(ndd$drink_cat)<- "Drinking water source"
 
 
 table(ndd$drink_cat)
@@ -55,6 +55,7 @@ ndd$wash_cat <- ifelse(ndd$wash_bottled == 1,1,
 ndd$wash_cat <- factor(ndd$wash_cat, levels = c(1:7), 
                        labels = c("Bottled","Public pump","Spring",
                                               "Tap","Tanker","Well","Other"))
+label(ndd$wash_cat)<- "Bathing water source"
 
 #factor and label toilet type
 ndd$toilet_type <- factor(ndd$toilet_type, levels = c(1:9), 
@@ -74,7 +75,10 @@ ndd$micro_zinc <- ifelse(ndd$fish >= 1,1,
                   ifelse(ndd$flesh_meat >= 1,1,
                   ifelse(ndd$beans >= 1,1,
                   ifelse(ndd$pumpkins >= 1,1,
-                  ifelse(ndd$zinc == 1,1,0)))))))
+                  ifelse(ndd$zinc == 1,1, 0)))))))
+ndd$micro_zinc<- factor(ndd$micro_zinc, levels = c(0,1),
+                        labels = c("No","Yes"))
+label(ndd$micro_zinc)<- "Zinc consumption"
 
 table(ndd$micro_zinc)
 
@@ -85,13 +89,19 @@ ndd$micro_iron <- ifelse(ndd$beans >= 1,1,
                   ifelse(ndd$potatoes >= 1,1,
                   ifelse(ndd$eggs >= 1,1,
                   ifelse(ndd$iron == 1,1,
-                  ifelse(ndd$chicken...89 >= 1,1,0))))))))
+                  ifelse(ndd$chicken...89 >= 1,1, 0))))))))
+ndd$micro_iron<- factor(ndd$micro_iron, levels = c(0,1),
+                        labels = c("No","Yes"))
+label(ndd$micro_iron)<- "Iron consumption"
 table(ndd$micro_iron)
 
 ndd$micro_vitamind <- ifelse(ndd$milk >= 1,1,
                       ifelse(ndd$fish >= 1,1,
                       ifelse(ndd$eggs >= 1,1,
-                      ifelse(ndd$chicken...89 >= 1,1,0))))
+                      ifelse(ndd$chicken...89 >= 1,1, 0))))
+ndd$micro_vitamind<- factor(ndd$micro_vitamind, levels = c(0,1),
+                            labels = c("No","Yes"))
+label(ndd$micro_vitamind)<- "Vitamin D consumption"
 table(ndd$micro_vitamind)
 
 ndd$micro_vitamina <- ifelse(ndd$darkgreen_vegetables >= 1,1,
@@ -102,9 +112,178 @@ ndd$micro_vitamina <- ifelse(ndd$darkgreen_vegetables >= 1,1,
                       ifelse(ndd$beans >= 1,1,
                       ifelse(ndd$tomato >= 1,1,
                       ifelse(ndd$fish >= 1,1,
-                      ifelse(ndd$eggs >= 1,1,0)))))))))
+                      ifelse(ndd$eggs >= 1,1, 0)))))))))
+ndd$micro_vitamina<- factor(ndd$micro_vitamina, levels = c(0,1),
+                            labels = c("No","Yes"))
 table(ndd$micro_vitamina)
 
+#breastfeeding/nutrition
+label(ndd$breastfeeding_now)<- "Currently breastfeeding"
+ndd$breastfeeding_now<- factor(ndd$breastfeeding_now, levels = c(0,1),
+                               labels = c("No","Yes"))
+
+label(ndd$mmd_b)<- "MMD"
+label(ndd$hhds_b)<- "HHDS"
+
+```
+
+
+```{r }
+#table1
+
+#cleaning variable for table
+label(ndd$age_months_b) <- "Age (months)"
+
+ndd$sex <- factor(ndd$sex, levels = c(1,2),
+                  labels = c("Male","Female"))
+label(ndd$sex) <- "Sex"
+
+label(ndd$control_case_group) <- "Study group"
+ndd$control_case_group<- factor(ndd$control_case_group, levels = c(0,1),
+                                labels = c("Control","Case"))
+
+label(ndd$maternal_age) <- "Caregiver age"
+
+label(ndd$maternal_education) <- "Caregiver education"
+ndd$maternal_education<- ifelse(ndd$maternal_education<=2, 0,
+                                ifelse(ndd$maternal_education>=3, 1, NA))
+ndd$maternal_education <- factor(ndd$maternal_education, levels = c(0,1), 
+                                 labels = c("Primary education or less", "Secondary education or above"))
+
+#asset variables
+label(ndd$hh_income)<- "Household income"
+ndd$hh_income<- ifelse(ndd$hh_income<= 2, 0,
+                              ifelse(ndd$hh_income>= 3, 1, NA))
+ndd$hh_income<- factor(ndd$hh_income, 
+                            levels = c(0,1), labels = c("500-1500 Dola Ayisien", 
+                                                        "1501+ Dola Ayisien"))
+
+label(ndd$home) <- "Home"
+ndd$home<- factor(ndd$home, levels = c(1:3),
+                  labels = c("Own","Rent","Neither"))
+
+ndd$livestock<- ifelse(ndd$chicken...34 <= 2, 1,
+                ifelse(ndd$goats_pigs <= 2, 1,
+                ifelse(ndd$chicken...34 == 3, 0, 
+                ifelse(ndd$goats_pigs == 3, 0, NA))))
+label(ndd$livestock) <- "Livestock"
+ndd$livestock<- factor(ndd$livestock, levels = c(0,1),
+                       labels = c("Do not own","Own"))
+
+ndd$telephone<- ifelse(ndd$telephone <=2, 1,
+                         ifelse(ndd$telephone ==3, 0, NA))
+#own tv
+label(ndd$tv)<- "TV"
+ndd$tv<- ifelse(ndd$tv <=2, 1,
+                         ifelse(ndd$tv ==3, 0, NA))
+ndd$tv<- factor(ndd$tv, levels = c(0,1),
+                labels = c("Do not own","Own"))
+
+#own fridge
+label(ndd$refrigerator)<- "Refrigerator"
+ndd$refrigerator<- ifelse(ndd$refrigerator <=2, 1,
+                         ifelse(ndd$refrigerator ==3, 0, NA))
+ndd$refrigerator<- factor(ndd$refrigerator, levels = c(0,1),
+                          labels = c("Do not own","Own"))
+
+#have access to electricity, 1= always/sometimes, 0= never
+label(ndd$electricity)<- "Electricity"
+ndd$electricity<- ifelse(ndd$electricity <=2, 1,
+                         ifelse(ndd$electricity ==3, 0, NA))
+ndd$electricity<- factor(ndd$electricity, levels = c(0,1),
+                         labels = c("Do not own","Own"))
+
+#floor composition; 1= concrete/ceramic, 0=earth/rocks
+label(ndd$house_floor)<- "Floor Type"
+ndd$house_floor<- ifelse(ndd$house_floor >=2, 1,
+                         ifelse(ndd$house_floor ==1, 0, NA))
+ndd$house_floor<- factor(ndd$house_floor, levels = c(0,1),
+                         labels = c("Earth/rocks","Concrete/ceramic"))
+
+#roof composition; 1= concrete 0= aluminum
+label(ndd$house_roof)<- "Roof type"
+ndd$house_roof<- ifelse(ndd$house_roof==2, 1,
+                         ifelse(ndd$house_roof ==3, 0, NA))
+ndd$house_roof<- factor(ndd$house_roof, levels = c(0,1),
+                        labels = c("Aluminum","Concrete"))
+
+#living in hh
+label(ndd$number_living_hh)<- "Number of people in household"
+
+#rooms in house
+label(ndd$rooms_hh)<- "Household rooms"
+
+##Toilet variables
+#toilet type
+label(ndd$toilet_type)<- "Toilet type"
+ndd$toilet_type<- ifelse(ndd$toilet_type <=3, 1,
+                         ifelse(ndd$toilet_type >=4, 0, NA))
+ndd$toilet_type<- factor(ndd$toilet_type, levels = c(0,1),
+                         labels = c("Unimproved pit latrine/OD","Improved pit latrine/toilet"))
+
+#toilet location
+label(ndd$toilet_location)<- "Toilet location"
+ndd$toilet_location<- ifelse(ndd$toilet_location <=2, 1,
+                             ifelse(ndd$toilet_location ==3, 0, NA))
+ndd$toilet_location<- factor(ndd$toilet_location, levels = c(0,1),
+                             labels = c("On property","Elsewhere"))
+
+#shared toilet
+label(ndd$shared_toilet)<- "Shared toilet"
+ndd$shared_toilet<- ifelse(ndd$shared_toilet == 0,0,
+                    ifelse(ndd$shared_toilet == 1,1,
+                    ifelse(ndd$shared_toilet == 2,0, NA)))
+ndd$shared_toilet<- factor(ndd$shared_toilet, levels = c(0,1),
+                           labels = c("No","Yes"))
+
+#number of hh sharing toilet
+label(ndd$toilet_number_ppl)<- "Number of households using same toilet"
+
+##septic tank variables
+label(ndd$septic_empty_yn_b)<- "Septic tank has been emptied"
+ndd$septic_empty_yn_b<- ifelse(ndd$septic_empty_yn_b == 2,0,
+                               ifelse(ndd$septic_empty_yn_b == 1,1,
+                                      ifelse(ndd$septic_empty_yn_b == 0,0, NA)))
+ndd$septic_empty_yn_b<- factor(ndd$septic_empty_yn_b, levels = c(0,1),
+                               labels = c("No","Yes"))
+
+label(ndd$septic_empty_provider_b)<- "Septic tank emptied by provider"
+ndd$septic_empty_provider_b<- ifelse(ndd$septic_empty_provider_b ==0,0,
+                                     ifelse(ndd$septic_empty_yn_b ==2,0,
+                                     ifelse(ndd$septic_empty_provider_b ==1,1, NA)))
+ndd$septic_empty_provider_b<- factor(ndd$septic_empty_provider_b, levels = c(0,1),
+                                     labels = c("No/Unsure","Yes"))
+
+##Nutrition
+#
+
+
+
+library(table1)
+
+pvalue <- function(x, ...) {
+    # Construct vectors of data y, and groups (strata) g
+    y <- unlist(x)
+    g <- factor(rep(1:length(x), times=sapply(x, length)))
+    if (is.numeric(y)) {
+        # For numeric variables, perform a standard 2-sample t-test
+        p <- t.test(y ~ g)$p.value
+    } else {
+        # For categorical variables, perform a chi-squared test of independence
+        p <- chisq.test(table(y, g))$p.value
+    }
+    # Format the p-value, using an HTML entity for the less-than sign.
+    # The initial empty string places the output on the line below the variable label.
+    c("", sub("<", "&lt;", format.pval(p, digits=3, eps=0.001)))
+}
+
+
+demo_tbl1<- table1(~ age_months_b + sex + maternal_education + maternal_age + livestock + tv + refrigerator + electricity + rooms_hh + house_floor + house_roof + hh_income + number_living_hh + toilet_type + shared_toilet + toilet_number_ppl + toilet_location + septic_empty_yn_b + septic_empty_provider_b + breastfeeding_now + micro_iron + micro_vitamina + micro_vitamind + micro_zinc + mmd_b + hhds_b| control_case_group, data = ndd, overall = F)
+demo_tbl1
+```
+
+
+```{r }
 
 ```
 
