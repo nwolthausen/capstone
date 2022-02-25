@@ -20,7 +20,12 @@ library(dplyr)
 library(plyr)
 library(readxl)
 library(tidyr)
+library(tidyverse)
+library(table1)
+```
 
+
+```{r }
 ndd <- read_excel("/Users/noahwolthausen/Desktop/Capstone/NDD.Master.xlsx")
 
 #Need to gather all variables
@@ -38,7 +43,7 @@ ndd$drink_cat <- ifelse(ndd$drink_bottled == 1,1,
 ndd$drink_cat <- factor(ndd$drink_cat, levels = c(1:7), 
                                       labels = c("Bottled","Public pump","Spring",
                                               "Tap","Tanker","Well","Other"))
-label(ndd$drink_cat)<- "Drinking water source"
+label(ndd$drink_cat) <- "Drinking water source"
 
 
 table(ndd$drink_cat)
@@ -58,13 +63,6 @@ ndd$wash_cat <- factor(ndd$wash_cat, levels = c(1:7),
 label(ndd$wash_cat)<- "Bathing water source"
 
 #factor and label toilet type
-ndd$toilet_type <- factor(ndd$toilet_type, levels = c(1:9), 
-                              labels = c("Automatic toilet",
-                                         "Ventilated improved pit latrine",
-                                         "Pit latrine with slab",
-                                         "Pit latrine without slabs",
-                                         "Composting toilet","Bucket toilet",
-                                         "Hanging toilet","Bush","River/stream"))
 
 
 #making micronutrient groups
@@ -216,10 +214,14 @@ label(ndd$rooms_hh)<- "Household rooms"
 ##Toilet variables
 #toilet type
 label(ndd$toilet_type)<- "Toilet type"
+
+
 ndd$toilet_type<- ifelse(ndd$toilet_type <=3, 1,
                          ifelse(ndd$toilet_type >=4, 0, NA))
 ndd$toilet_type<- factor(ndd$toilet_type, levels = c(0,1),
                          labels = c("Unimproved pit latrine/OD","Improved pit latrine/toilet"))
+
+table(ndd$toilet_type)
 
 #toilet location
 label(ndd$toilet_location)<- "Toilet location"
@@ -278,13 +280,36 @@ pvalue <- function(x, ...) {
 }
 
 
-demo_tbl1<- table1(~ age_months_b + sex + maternal_education + maternal_age + livestock + tv + refrigerator + electricity + rooms_hh + house_floor + house_roof + hh_income + number_living_hh + toilet_type + shared_toilet + toilet_number_ppl + toilet_location + septic_empty_yn_b + septic_empty_provider_b + breastfeeding_now + micro_iron + micro_vitamina + micro_vitamind + micro_zinc + mmd_b + hhds_b| control_case_group, data = ndd, overall = F)
+demo_tbl1<- table1(~ age_months_b + sex + maternal_education + maternal_age + livestock + tv + refrigerator + electricity + rooms_hh + house_floor + house_roof + hh_income + number_living_hh + toilet_type + shared_toilet + toilet_number_ppl + toilet_location + septic_empty_yn_b + septic_empty_provider_b + breastfeeding_now + micro_iron + micro_vitamina + micro_vitamind + micro_zinc + mmd_b + hhds_b| control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
 demo_tbl1
 ```
 
 
 ```{r }
+#missing values
 
+library(VIM) 
+library(mice) 
+library(lattice)
+install.packages("naniar")
+library(naniar)
+
+work_ndd<- data.frame(ndd$age_months_b, ndd$sex, ndd$maternal_education, ndd$maternal_age, ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b, ndd$tv, ndd$refrigerator, ndd$electricity, ndd$rooms_hh, ndd$house_roof, ndd$house_floor, ndd$hh_income, ndd$toilet_type, ndd$shared_toilet, ndd$breastfeeding_now, ndd$micro_iron, ndd$micro_vitamina, ndd$micro_zinc, ndd$micro_vitamind, ndd$mmd_b, ndd$hhds_b)
+view(work_ndd)
+
+is.na(work_ndd)
+
+miss_case_summary(work_ndd)
+miss_case_table(work_ndd)
+
+miss_var_summary(work_ndd)
+miss_var_table(work_ndd)
+
+work_ndd %>% is.na() %>% colSums()
+
+view(ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b)
+
+md.pattern(work_ndd, rotate.names=TRUE)
 ```
 
 ## Including Plots
