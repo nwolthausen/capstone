@@ -22,11 +22,57 @@ library(readxl)
 library(tidyr)
 library(tidyverse)
 library(table1)
+
+ndd <- read_excel("/Users/noahwolthausen/Desktop/Capstone/NDD.Master.xlsx")
+
+```
+```{r}
+#missing values
+
+ndd$cassava[is.na(ndd$cassava)] = 0
+ndd$bread[is.na(ndd$bread)] = 0
+ndd$rice[is.na(ndd$rice)] = 0
+ndd$pasta[is.na(ndd$pasta)] = 0
+ndd$potatoes[is.na(ndd$potatoes)] = 0
+ndd$cereals[is.na(ndd$cereals)] = 0
+ndd$roots_tubers[is.na(ndd$roots_tubers)] = 0
+ndd$beans[is.na(ndd$beans)] = 0
+ndd$eggs[is.na(ndd$eggs)] = 0
+ndd$milk[is.na(ndd$milk)] = 0
+ndd$yogurt[is.na(ndd$yogurt)] = 0
+ndd$dairy[is.na(ndd$dairy)] = 0
+ndd$chicken...89[is.na(ndd$chicken...89)] = 0
+ndd$flesh_meat[is.na(ndd$flesh_meat)] = 0
+ndd$mango[is.na(ndd$mango)] = 0
+ndd$tomato[is.na(ndd$tomato)] = 0
+ndd$eggplant[is.na(ndd$eggplant)] = 0
+ndd$avocado[is.na(ndd$avocado)] = 0
+ndd$other_fruits[is.na(ndd$other_fruits)] = 0
+ndd$darkgreen_vegetables[is.na(ndd$darkgreen_vegetables)] = 0
+ndd$pumpkins[is.na(ndd$pumpkins)] = 0
+ndd$fats[is.na(ndd$fats)] = 0
+ndd$bon_sel[is.na(ndd$bon_sel)] = 0
+ndd$bon_suc[is.na(ndd$bon_suc)] = 0
+ndd$artifical_juice[is.na(ndd$artifical_juice)] = 0
+ndd$natural_juice[is.na(ndd$natural_juice)] = 0
+ndd$soda[is.na(ndd$soda)] = 0
+
+
+
+Food<-c(“bread”, “rice”)
+for(I in Food){
+ifelse(is.na(n$I, 0, n$I)
+}
+
+
+
 ```
 
 
 ```{r }
-ndd <- read_excel("/Users/noahwolthausen/Desktop/Capstone/NDD.Master.xlsx")
+
+
+
 
 #Need to gather all variables
 
@@ -67,6 +113,8 @@ label(ndd$wash_cat)<- "Bathing water source"
 
 #making micronutrient groups
 
+ifelse(ndd$fish>=1|ndd$milk>=1, 1, 0)
+
 ndd$micro_zinc <- ifelse(ndd$fish >= 1,1,
                   ifelse(ndd$milk >= 1,1,
                   ifelse(ndd$yogurt >= 1,1,
@@ -77,8 +125,8 @@ ndd$micro_zinc <- ifelse(ndd$fish >= 1,1,
 ndd$micro_zinc<- factor(ndd$micro_zinc, levels = c(0,1),
                         labels = c("No","Yes"))
 label(ndd$micro_zinc)<- "Zinc consumption"
-
 table(ndd$micro_zinc)
+ndd$micro_zinc[is.na(ndd$micro_zinc)] = 0
 
 ndd$micro_iron <- ifelse(ndd$beans >= 1,1,
                   ifelse(ndd$darkgreen_vegetables >= 1,1,
@@ -92,6 +140,7 @@ ndd$micro_iron<- factor(ndd$micro_iron, levels = c(0,1),
                         labels = c("No","Yes"))
 label(ndd$micro_iron)<- "Iron consumption"
 table(ndd$micro_iron)
+ndd$micro_iron[is.na(ndd$micro_iron)] = 0
 
 ndd$micro_vitamind <- ifelse(ndd$milk >= 1,1,
                       ifelse(ndd$fish >= 1,1,
@@ -101,6 +150,7 @@ ndd$micro_vitamind<- factor(ndd$micro_vitamind, levels = c(0,1),
                             labels = c("No","Yes"))
 label(ndd$micro_vitamind)<- "Vitamin D consumption"
 table(ndd$micro_vitamind)
+ndd$micro_vitamind[is.na(ndd$micro_vitamind)] = 0
 
 ndd$micro_vitamina <- ifelse(ndd$darkgreen_vegetables >= 1,1,
                       ifelse(ndd$pumpkins >= 1,1,
@@ -114,6 +164,9 @@ ndd$micro_vitamina <- ifelse(ndd$darkgreen_vegetables >= 1,1,
 ndd$micro_vitamina<- factor(ndd$micro_vitamina, levels = c(0,1),
                             labels = c("No","Yes"))
 table(ndd$micro_vitamina)
+ndd$micro_zinc[is.na(ndd$micro_zinc)] = 0
+
+
 
 #breastfeeding/nutrition
 label(ndd$breastfeeding_now)<- "Currently breastfeeding"
@@ -294,8 +347,10 @@ library(lattice)
 install.packages("naniar")
 library(naniar)
 
-work_ndd<- data.frame(ndd$age_months_b, ndd$sex, ndd$maternal_education, ndd$maternal_age, ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b, ndd$tv, ndd$refrigerator, ndd$electricity, ndd$rooms_hh, ndd$house_roof, ndd$house_floor, ndd$hh_income, ndd$toilet_type, ndd$shared_toilet, ndd$breastfeeding_now, ndd$micro_iron, ndd$micro_vitamina, ndd$micro_zinc, ndd$micro_vitamind, ndd$mmd_b, ndd$hhds_b)
+work_ndd<- data.frame(ndd$id, ndd$age_months_b, ndd$sex, ndd$maternal_education, ndd$maternal_age, ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b, ndd$tv, ndd$refrigerator, ndd$electricity, ndd$rooms_hh, ndd$house_roof, ndd$house_floor, ndd$hh_income, ndd$toilet_type, ndd$shared_toilet, ndd$breastfeeding_now, ndd$micro_iron, ndd$micro_vitamina, ndd$micro_zinc, ndd$micro_vitamind, ndd$mmd_b, ndd$hhds_b)
 view(work_ndd)
+
+view(ndd)
 
 is.na(work_ndd)
 
@@ -305,11 +360,38 @@ miss_case_table(work_ndd)
 miss_var_summary(work_ndd)
 miss_var_table(work_ndd)
 
+work_ndd[139,]
+
+view(ndd)
+
 work_ndd %>% is.na() %>% colSums()
 
 view(ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b)
 
 md.pattern(work_ndd, rotate.names=TRUE)
+```
+```{r}
+
+
+
+view(ndd)
+
+ndd_ffq <- data.frame(,
+                      , , ,
+                      , , ,
+                      , , ,
+                      , , ,
+                      , , ,
+                      , , ,
+                      , , , ,
+                      , )
+
+ndd_ffq[is.na(ndd_ffq)] = 0
+is.na(ndd_ffq)
+
+
+
+
 ```
 
 ## Including Plots
