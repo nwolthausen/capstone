@@ -29,40 +29,41 @@ ndd <- read_excel("/Users/noahwolthausen/Desktop/Capstone/NDD.Master.xlsx")
 ```{r}
 #missing values
 
-ndd$cassava[is.na(ndd$cassava)] = 0
-ndd$bread[is.na(ndd$bread)] = 0
-ndd$rice[is.na(ndd$rice)] = 0
-ndd$pasta[is.na(ndd$pasta)] = 0
-ndd$potatoes[is.na(ndd$potatoes)] = 0
-ndd$cereals[is.na(ndd$cereals)] = 0
-ndd$roots_tubers[is.na(ndd$roots_tubers)] = 0
-ndd$beans[is.na(ndd$beans)] = 0
-ndd$eggs[is.na(ndd$eggs)] = 0
-ndd$milk[is.na(ndd$milk)] = 0
-ndd$yogurt[is.na(ndd$yogurt)] = 0
-ndd$dairy[is.na(ndd$dairy)] = 0
-ndd$chicken...89[is.na(ndd$chicken...89)] = 0
-ndd$flesh_meat[is.na(ndd$flesh_meat)] = 0
-ndd$mango[is.na(ndd$mango)] = 0
-ndd$tomato[is.na(ndd$tomato)] = 0
-ndd$eggplant[is.na(ndd$eggplant)] = 0
-ndd$avocado[is.na(ndd$avocado)] = 0
-ndd$other_fruits[is.na(ndd$other_fruits)] = 0
-ndd$darkgreen_vegetables[is.na(ndd$darkgreen_vegetables)] = 0
-ndd$pumpkins[is.na(ndd$pumpkins)] = 0
-ndd$fats[is.na(ndd$fats)] = 0
-ndd$bon_sel[is.na(ndd$bon_sel)] = 0
-ndd$bon_suc[is.na(ndd$bon_suc)] = 0
-ndd$artifical_juice[is.na(ndd$artifical_juice)] = 0
-ndd$natural_juice[is.na(ndd$natural_juice)] = 0
-ndd$soda[is.na(ndd$soda)] = 0
-
-
-
-Food<-c(“bread”, “rice”)
-for(I in Food){
-ifelse(is.na(n$I, 0, n$I)
-}
+ndd$cassava[is.na(ndd$cassava)] <- 0
+ndd$bread[is.na(ndd$bread)] <- 0
+ndd$rice[is.na(ndd$rice)] <- 0
+ndd$pasta[is.na(ndd$pasta)] <- 0
+ndd$potatoes[is.na(ndd$potatoes)] <- 0
+ndd$cereals[is.na(ndd$cereals)] <- 0
+ndd$roots_tubers[is.na(ndd$roots_tubers)] <- 0
+ndd$beans[is.na(ndd$beans)] <- 0
+ndd$eggs[is.na(ndd$eggs)] <- 0
+ndd$milk[is.na(ndd$milk)] <- 0
+ndd$yogurt[is.na(ndd$yogurt)] <- 0
+ndd$chicken...89[is.na(ndd$chicken...89)] <- 0
+ndd$flesh_meat[is.na(ndd$flesh_meat)] <- 0
+ndd$fish[is.na(ndd$fish)]<- 0
+ndd$mango[is.na(ndd$mango)] <- 0
+ndd$tomato[is.na(ndd$tomato)] <- 0
+ndd$eggplant[is.na(ndd$eggplant)] <- 0
+ndd$avocado[is.na(ndd$avocado)] <- 0
+ndd$other_fruits[is.na(ndd$other_fruits)] <- 0
+ndd$pumpkins[is.na(ndd$pumpkins)] <- 0
+ndd$darkgreen_vegetables[is.na(ndd$darkgreen_vegetables)] <- 0
+ndd$other_vegetables[is.na(ndd$other_vegetables)] <- 0
+ndd$fats[is.na(ndd$fats)] <- 0
+ndd$bon_sel[is.na(ndd$bon_sel)] <- 0
+ndd$bon_suc[is.na(ndd$bon_suc)] <- 0
+ndd$artifical_juice[is.na(ndd$artifical_juice)] <- 0
+ndd$natural_juice[is.na(ndd$natural_juice)] <- 0
+ndd$soda[is.na(ndd$soda)] <- 0
+ndd$zinc[is.na(ndd$zinc)] <- 0
+ndd$iron[is.na(ndd$iron)] <- 0
+ndd$vitamin_a[is.na(ndd$vitamin_a)] <- 0
+ndd$breastfeeding_now[is.na(ndd$breastfeeding_now)] <- 0
+ndd$breastfeed_ever_yn_b[is.na(ndd$breastfeed_ever_yn_b)] <- 0
+ndd$maternal_education[is.na(ndd$maternal_education)] <- 1
+ndd$home[is.na(ndd$home)] <- 3
 
 
 
@@ -108,12 +109,11 @@ ndd$wash_cat <- factor(ndd$wash_cat, levels = c(1:7),
                                               "Tap","Tanker","Well","Other"))
 label(ndd$wash_cat)<- "Bathing water source"
 
-#factor and label toilet type
 
 
 #making micronutrient groups
 
-ifelse(ndd$fish>=1|ndd$milk>=1, 1, 0)
+
 
 ndd$micro_zinc <- ifelse(ndd$fish >= 1,1,
                   ifelse(ndd$milk >= 1,1,
@@ -126,7 +126,7 @@ ndd$micro_zinc<- factor(ndd$micro_zinc, levels = c(0,1),
                         labels = c("No","Yes"))
 label(ndd$micro_zinc)<- "Zinc consumption"
 table(ndd$micro_zinc)
-ndd$micro_zinc[is.na(ndd$micro_zinc)] = 0
+
 
 ndd$micro_iron <- ifelse(ndd$beans >= 1,1,
                   ifelse(ndd$darkgreen_vegetables >= 1,1,
@@ -140,7 +140,7 @@ ndd$micro_iron<- factor(ndd$micro_iron, levels = c(0,1),
                         labels = c("No","Yes"))
 label(ndd$micro_iron)<- "Iron consumption"
 table(ndd$micro_iron)
-ndd$micro_iron[is.na(ndd$micro_iron)] = 0
+
 
 ndd$micro_vitamind <- ifelse(ndd$milk >= 1,1,
                       ifelse(ndd$fish >= 1,1,
@@ -150,7 +150,7 @@ ndd$micro_vitamind<- factor(ndd$micro_vitamind, levels = c(0,1),
                             labels = c("No","Yes"))
 label(ndd$micro_vitamind)<- "Vitamin D consumption"
 table(ndd$micro_vitamind)
-ndd$micro_vitamind[is.na(ndd$micro_vitamind)] = 0
+
 
 ndd$micro_vitamina <- ifelse(ndd$darkgreen_vegetables >= 1,1,
                       ifelse(ndd$pumpkins >= 1,1,
@@ -160,11 +160,12 @@ ndd$micro_vitamina <- ifelse(ndd$darkgreen_vegetables >= 1,1,
                       ifelse(ndd$beans >= 1,1,
                       ifelse(ndd$tomato >= 1,1,
                       ifelse(ndd$fish >= 1,1,
-                      ifelse(ndd$eggs >= 1,1, 0)))))))))
+                      ifelse(ndd$eggs >= 1,1,
+                        ifelse(ndd$vitamin_a == 1,1, 0))))))))))
 ndd$micro_vitamina<- factor(ndd$micro_vitamina, levels = c(0,1),
                             labels = c("No","Yes"))
 table(ndd$micro_vitamina)
-ndd$micro_zinc[is.na(ndd$micro_zinc)] = 0
+
 
 
 
@@ -172,6 +173,10 @@ ndd$micro_zinc[is.na(ndd$micro_zinc)] = 0
 label(ndd$breastfeeding_now)<- "Currently breastfeeding"
 ndd$breastfeeding_now<- factor(ndd$breastfeeding_now, levels = c(0,1),
                                labels = c("No","Yes"))
+
+label(ndd$breastfeed_ever_yn_b)<- "Has child ever breastfed?"
+ndd$breastfeed_ever_yn_b<- factor(ndd$breastfeed_ever_yn_b, levels = c(0,1),
+                                  labels = c("No","Yes"))
 
 label(ndd$mmd_b)<- "MMD"
 label(ndd$hhds_b)<- "HHDS"
@@ -198,6 +203,7 @@ label(ndd$maternal_age) <- "Caregiver age"
 label(ndd$maternal_education) <- "Caregiver education"
 ndd$maternal_education<- ifelse(ndd$maternal_education<=2, 0,
                                 ifelse(ndd$maternal_education>=3, 1, NA))
+ndd$maternal_education[is.na(ndd$maternal_education)] = 0
 ndd$maternal_education <- factor(ndd$maternal_education, levels = c(0,1), 
                                  labels = c("Primary education or less", "Secondary education or above"))
 
@@ -208,21 +214,48 @@ ndd$hh_income<- ifelse(ndd$hh_income<= 2, 0,
 ndd$hh_income<- factor(ndd$hh_income, 
                             levels = c(0,1), labels = c("500-1500 Dola Ayisien", 
                                                         "1501+ Dola Ayisien"))
+sum(is.na(ndd$hh_income))
 
 label(ndd$home) <- "Home"
-ndd$home<- factor(ndd$home, levels = c(1:3),
-                  labels = c("Own","Rent","Neither"))
+ndd$home<- ifelse(ndd$home>= 2, 0,
+                  ifelse(ndd$home== 1, 1, 0))
+ndd$home<- factor(ndd$home, levels = c(0:1),
+                  labels = c("Rent or other","Own"))
 
-ndd$livestock<- ifelse(ndd$chicken...34 <= 2, 1,
-                ifelse(ndd$goats_pigs <= 2, 1,
-                ifelse(ndd$chicken...34 == 3, 0, 
-                ifelse(ndd$goats_pigs == 3, 0, NA))))
-label(ndd$livestock) <- "Livestock"
-ndd$livestock<- factor(ndd$livestock, levels = c(0,1),
-                       labels = c("Do not own","Own"))
+table(ndd$home)
 
-ndd$telephone<- ifelse(ndd$telephone <=2, 1,
-                         ifelse(ndd$telephone ==3, 0, NA))
+ndd <- ndd %>%
+    mutate(livestock = case_when(chicken...34 <= 2 ~ 1, 
+                                 goats_pigs <= 2 ~ 1,
+                                 TRUE ~ 0),
+           telephone = case_when(telephone <= 2 ~ 1,
+                                 TRUE ~ 0),
+           tv = case_when(tv <= 2 ~ 1,
+                          TRUE ~ 0),
+           refrigerator = case_when(refrigerator <= 2 ~1,
+                                    TRUE ~ 0),
+           electricity = case_when(electricity <= 2 ~ 1,
+                                   TRUE ~0),
+           house_floor = case_when(house_floor >= 2 ~ 1,
+                                   TRUE ~ 0),
+           house_roof = case_when(house_roof == 2 ~ 1,
+                                  TRUE ~ 0),
+           toilet_type = case_when(toilet_type <= 3 ~ 1,
+                                   TRUE ~ 0),
+           )
+           
+ndd$livestock<- factor(ndd$livestock, levels = c(0:1),
+                       labels = c("Do not own", "Own"))
+
+table(ndd$livestock)
+class(ndd$livestock)
+
+
+ndd <- ndd %>%
+    mutate(telephone = case_when(telephone <= 2 ~ 1,
+                                 TRUE ~ 0))
+ndd$telephone<- factor(ndd$telephone, levels = c(0:1), labels = c("Do not own", "Own"))
+
 #own tv
 label(ndd$tv)<- "TV"
 ndd$tv<- ifelse(ndd$tv <=2, 1,
@@ -283,6 +316,10 @@ ndd$toilet_location<- ifelse(ndd$toilet_location <=2, 1,
 ndd$toilet_location<- factor(ndd$toilet_location, levels = c(0,1),
                              labels = c("On property","Elsewhere"))
 
+sum(is.na(ndd$shared_toilet))
+
+miss_toilet <- data.frame(ndd$toilet_location, ndd$shared_toilet, ndd$toilet_type)
+
 #shared toilet
 label(ndd$shared_toilet)<- "Shared toilet"
 ndd$shared_toilet<- ifelse(ndd$shared_toilet == 0,0,
@@ -308,39 +345,11 @@ ndd$septic_empty_provider_b<- ifelse(ndd$septic_empty_provider_b ==0,0,
                                      ifelse(ndd$septic_empty_provider_b ==1,1, NA)))
 ndd$septic_empty_provider_b<- factor(ndd$septic_empty_provider_b, levels = c(0,1),
                                      labels = c("No/Unsure","Yes"))
-
-##Nutrition
-#
-
-
-
-library(table1)
-
-pvalue <- function(x, ...) {
-    # Construct vectors of data y, and groups (strata) g
-    y <- unlist(x)
-    g <- factor(rep(1:length(x), times=sapply(x, length)))
-    if (is.numeric(y)) {
-        # For numeric variables, perform a standard 2-sample t-test
-        p <- t.test(y ~ g)$p.value
-    } else {
-        # For categorical variables, perform a chi-squared test of independence
-        p <- chisq.test(table(y, g))$p.value
-    }
-    # Format the p-value, using an HTML entity for the less-than sign.
-    # The initial empty string places the output on the line below the variable label.
-    c("", sub("<", "&lt;", format.pval(p, digits=3, eps=0.001)))
-}
-
-
-demo_tbl1<- table1(~ age_months_b + sex + maternal_education + maternal_age + livestock + tv + refrigerator + electricity + rooms_hh + house_floor + house_roof + hh_income + number_living_hh + toilet_type + shared_toilet + toilet_number_ppl + toilet_location + septic_empty_yn_b + septic_empty_provider_b + breastfeeding_now + micro_iron + micro_vitamina + micro_vitamind + micro_zinc + mmd_b + hhds_b| control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
-demo_tbl1
 ```
 
 
 ```{r }
-#missing values
-
+#Missing values
 library(VIM) 
 library(mice) 
 library(lattice)
@@ -369,6 +378,37 @@ work_ndd %>% is.na() %>% colSums()
 view(ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b)
 
 md.pattern(work_ndd, rotate.names=TRUE)
+
+```
+
+
+```{r }
+#missing values
+
+
+
+
+library(table1)
+
+pvalue <- function(x, ...) {
+    # Construct vectors of data y, and groups (strata) g
+    y <- unlist(x)
+    g <- factor(rep(1:length(x), times=sapply(x, length)))
+    if (is.numeric(y)) {
+        # For numeric variables, perform a standard 2-sample t-test
+        p <- t.test(y ~ g)$p.value
+    } else {
+        # For categorical variables, perform a chi-squared test of independence
+        p <- chisq.test(table(y, g))$p.value
+    }
+    # Format the p-value, using an HTML entity for the less-than sign.
+    # The initial empty string places the output on the line below the variable label.
+    c("", sub("<", "&lt;", format.pval(p, digits=3, eps=0.001)))
+}
+
+
+demo_tbl1<- table1(~ age_months_b + sex + maternal_education + maternal_age + livestock + tv + refrigerator + electricity + rooms_hh + house_floor + house_roof + hh_income + number_living_hh + toilet_type + shared_toilet + toilet_number_ppl + toilet_location + septic_empty_yn_b + septic_empty_provider_b + breastfeeding_now + micro_iron + micro_vitamina + micro_vitamind + micro_zinc + mmd_b + hhds_b| control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
+demo_tbl1
 ```
 ```{r}
 
