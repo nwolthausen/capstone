@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
 ## R Markdown
@@ -24,6 +25,8 @@ library(tidyverse)
 library(table1)
 
 ndd <- read_excel("/Users/noahwolthausen/Desktop/Capstone/NDD.Master.xlsx")
+
+
 
 ```
 ```{r}
@@ -60,22 +63,12 @@ ndd$soda[is.na(ndd$soda)] <- 0
 ndd$zinc[is.na(ndd$zinc)] <- 0
 ndd$iron[is.na(ndd$iron)] <- 0
 ndd$vitamin_a[is.na(ndd$vitamin_a)] <- 0
-ndd$breastfeeding_now[is.na(ndd$breastfeeding_now)] <- 0
-ndd$breastfeed_ever_yn_b[is.na(ndd$breastfeed_ever_yn_b)] <- 0
-ndd$maternal_education[is.na(ndd$maternal_education)] <- 1
 ndd$home[is.na(ndd$home)] <- 3
-
-
-
 ```
 
 
-```{r }
-
-
-
-
-#Need to gather all variables
+```{r}
+#Variable recoding
 
 #combine all drink variables
 ndd$drink_cat <- ifelse(ndd$drink_bottled == 1,1,
@@ -92,9 +85,6 @@ ndd$drink_cat <- factor(ndd$drink_cat, levels = c(1:7),
                                               "Tap","Tanker","Well","Other"))
 label(ndd$drink_cat) <- "Drinking water source"
 
-
-table(ndd$drink_cat)
-
 #combine all wash
 ndd$wash_cat <- ifelse(ndd$wash_bottled == 1,1,
                 (ifelse(ndd$wash_publis == 1,2, 
@@ -108,12 +98,11 @@ ndd$wash_cat <- factor(ndd$wash_cat, levels = c(1:7),
                        labels = c("Bottled","Public pump","Spring",
                                               "Tap","Tanker","Well","Other"))
 label(ndd$wash_cat)<- "Bathing water source"
+```
 
 
-
-#making micronutrient groups
-
-
+```{r}
+#Labeling and recoding nutrition variables
 
 ndd$micro_zinc <- ifelse(ndd$fish >= 1,1,
                   ifelse(ndd$milk >= 1,1,
@@ -125,8 +114,6 @@ ndd$micro_zinc <- ifelse(ndd$fish >= 1,1,
 ndd$micro_zinc<- factor(ndd$micro_zinc, levels = c(0,1),
                         labels = c("No","Yes"))
 label(ndd$micro_zinc)<- "Zinc consumption"
-table(ndd$micro_zinc)
-
 
 ndd$micro_iron <- ifelse(ndd$beans >= 1,1,
                   ifelse(ndd$darkgreen_vegetables >= 1,1,
@@ -139,8 +126,6 @@ ndd$micro_iron <- ifelse(ndd$beans >= 1,1,
 ndd$micro_iron<- factor(ndd$micro_iron, levels = c(0,1),
                         labels = c("No","Yes"))
 label(ndd$micro_iron)<- "Iron consumption"
-table(ndd$micro_iron)
-
 
 ndd$micro_vitamind <- ifelse(ndd$milk >= 1,1,
                       ifelse(ndd$fish >= 1,1,
@@ -149,8 +134,6 @@ ndd$micro_vitamind <- ifelse(ndd$milk >= 1,1,
 ndd$micro_vitamind<- factor(ndd$micro_vitamind, levels = c(0,1),
                             labels = c("No","Yes"))
 label(ndd$micro_vitamind)<- "Vitamin D consumption"
-table(ndd$micro_vitamind)
-
 
 ndd$micro_vitamina <- ifelse(ndd$darkgreen_vegetables >= 1,1,
                       ifelse(ndd$pumpkins >= 1,1,
@@ -164,10 +147,7 @@ ndd$micro_vitamina <- ifelse(ndd$darkgreen_vegetables >= 1,1,
                         ifelse(ndd$vitamin_a == 1,1, 0))))))))))
 ndd$micro_vitamina<- factor(ndd$micro_vitamina, levels = c(0,1),
                             labels = c("No","Yes"))
-table(ndd$micro_vitamina)
-
-
-
+label(ndd$micro_vitamina)<- "Vitamin A consumption"
 
 #breastfeeding/nutrition
 label(ndd$breastfeeding_now)<- "Currently breastfeeding"
@@ -180,54 +160,61 @@ ndd$breastfeed_ever_yn_b<- factor(ndd$breastfeed_ever_yn_b, levels = c(0,1),
 
 label(ndd$mmd_b)<- "MMD"
 label(ndd$hhds_b)<- "HHDS"
-
 ```
 
 
-```{r }
-#table1
-
-#cleaning variable for table
+```{r}
+#Labeling and recoding demographic variables
 label(ndd$age_months_b) <- "Age (months)"
 
 ndd$sex <- factor(ndd$sex, levels = c(1,2),
                   labels = c("Male","Female"))
 label(ndd$sex) <- "Sex"
 
-label(ndd$control_case_group) <- "Study group"
+
 ndd$control_case_group<- factor(ndd$control_case_group, levels = c(0,1),
                                 labels = c("Control","Case"))
+label(ndd$control_case_group) <- "Study group"
 
 label(ndd$maternal_age) <- "Caregiver age"
 
-label(ndd$maternal_education) <- "Caregiver education"
+
 ndd$maternal_education<- ifelse(ndd$maternal_education<=2, 0,
                                 ifelse(ndd$maternal_education>=3, 1, NA))
 ndd$maternal_education[is.na(ndd$maternal_education)] = 0
 ndd$maternal_education <- factor(ndd$maternal_education, levels = c(0,1), 
                                  labels = c("Primary education or less", "Secondary education or above"))
+label(ndd$maternal_education) <- "Caregiver education"
+```
 
-#asset variables
-label(ndd$hh_income)<- "Household income"
+
+```{r}
+#Child growth variables
+label(ndd$HAZ_b)<- "HAZ"
+label(ndd$WAZ_b)<- "WAZ"
+label(ndd$WHZ_b)<- "WHZ"
+label(ndd$stunted_BL)<- "Stunted"
+label(ndd$underweight_BL)<- "Underweight"
+label(ndd$wasted_BL)<- "Wasted"
+```
+
+
+```{r}
+#Labeling and recoding asset variables
+
 ndd$hh_income<- ifelse(ndd$hh_income<= 2, 0,
                               ifelse(ndd$hh_income>= 3, 1, NA))
 ndd$hh_income<- factor(ndd$hh_income, 
                             levels = c(0,1), labels = c("500-1500 Dola Ayisien", 
                                                         "1501+ Dola Ayisien"))
-sum(is.na(ndd$hh_income))
-
-label(ndd$home) <- "Home"
-ndd$home<- ifelse(ndd$home>= 2, 0,
-                  ifelse(ndd$home== 1, 1, 0))
-ndd$home<- factor(ndd$home, levels = c(0:1),
-                  labels = c("Rent or other","Own"))
-
-table(ndd$home)
+label(ndd$hh_income)<- "Household income"
 
 ndd <- ndd %>%
     mutate(livestock = case_when(chicken...34 <= 2 ~ 1, 
                                  goats_pigs <= 2 ~ 1,
                                  TRUE ~ 0),
+           home = case_when(home == 1 ~ 1,
+                            TRUE ~ 0),
            telephone = case_when(telephone <= 2 ~ 1,
                                  TRUE ~ 0),
            tv = case_when(tv <= 2 ~ 1,
@@ -243,123 +230,93 @@ ndd <- ndd %>%
            toilet_type = case_when(toilet_type <= 3 ~ 1,
                                    TRUE ~ 0),
            )
+#Factor version for all asset variables
+ndd$F_home<- factor(ndd$home, levels = c(0:1),
+                  labels = c("Rent or other","Own"))
+label(ndd$F_home) <- "Home"
            
-ndd$livestock<- factor(ndd$livestock, levels = c(0:1),
+ndd$F_livestock<- factor(ndd$livestock, levels = c(0:1),
                        labels = c("Do not own", "Own"))
+label(ndd$F_livestock)<- "Livestock"
+view(ndd)
 
-table(ndd$livestock)
-class(ndd$livestock)
+ndd$F_telephone<- factor(ndd$telephone, levels = c(0:1), 
+                         labels = c("Do not own", "Own"))
+label(ndd$F_telephone)<- "Cellphone"
 
-
-ndd <- ndd %>%
-    mutate(telephone = case_when(telephone <= 2 ~ 1,
-                                 TRUE ~ 0))
-ndd$telephone<- factor(ndd$telephone, levels = c(0:1), labels = c("Do not own", "Own"))
-
-#own tv
-label(ndd$tv)<- "TV"
-ndd$tv<- ifelse(ndd$tv <=2, 1,
-                         ifelse(ndd$tv ==3, 0, NA))
-ndd$tv<- factor(ndd$tv, levels = c(0,1),
+ndd$F_tv<- factor(ndd$tv, levels = c(0,1),
                 labels = c("Do not own","Own"))
+label(ndd$F_tv)<- "TV"
 
-#own fridge
-label(ndd$refrigerator)<- "Refrigerator"
-ndd$refrigerator<- ifelse(ndd$refrigerator <=2, 1,
-                         ifelse(ndd$refrigerator ==3, 0, NA))
-ndd$refrigerator<- factor(ndd$refrigerator, levels = c(0,1),
+ndd$F_refrigerator<- factor(ndd$refrigerator, levels = c(0,1),
                           labels = c("Do not own","Own"))
+label(ndd$F_refrigerator)<- "Refrigerator"
 
-#have access to electricity, 1= always/sometimes, 0= never
-label(ndd$electricity)<- "Electricity"
-ndd$electricity<- ifelse(ndd$electricity <=2, 1,
-                         ifelse(ndd$electricity ==3, 0, NA))
-ndd$electricity<- factor(ndd$electricity, levels = c(0,1),
-                         labels = c("Do not own","Own"))
+ndd$F_electricity<- factor(ndd$electricity, levels = c(0,1),
+                         labels = c("Never","Always/sometimes"))
+label(ndd$F_electricity)<- "Electricity"
 
-#floor composition; 1= concrete/ceramic, 0=earth/rocks
-label(ndd$house_floor)<- "Floor Type"
-ndd$house_floor<- ifelse(ndd$house_floor >=2, 1,
-                         ifelse(ndd$house_floor ==1, 0, NA))
-ndd$house_floor<- factor(ndd$house_floor, levels = c(0,1),
+ndd$F_house_floor<- factor(ndd$house_floor, levels = c(0,1),
                          labels = c("Earth/rocks","Concrete/ceramic"))
+label(ndd$F_house_floor)<- "Floor Type"
 
-#roof composition; 1= concrete 0= aluminum
-label(ndd$house_roof)<- "Roof type"
-ndd$house_roof<- ifelse(ndd$house_roof==2, 1,
-                         ifelse(ndd$house_roof ==3, 0, NA))
-ndd$house_roof<- factor(ndd$house_roof, levels = c(0,1),
+ndd$F_house_roof<- factor(ndd$house_roof, levels = c(0,1),
                         labels = c("Aluminum","Concrete"))
+label(ndd$F_house_roof)<- "Roof type"
 
 #living in hh
 label(ndd$number_living_hh)<- "Number of people in household"
 
+ndd$cat_num_liv_hh<- ifelse(ndd$number_living_hh<=5, 1,
+                              ifelse(ndd$number_living_hh>=6, 0, NA))
+
 #rooms in house
 label(ndd$rooms_hh)<- "Household rooms"
+```
 
+
+```{r}
 ##Toilet variables
 #toilet type
-label(ndd$toilet_type)<- "Toilet type"
-
-
-ndd$toilet_type<- ifelse(ndd$toilet_type <=3, 1,
-                         ifelse(ndd$toilet_type >=4, 0, NA))
-ndd$toilet_type<- factor(ndd$toilet_type, levels = c(0,1),
+ndd$F_toilet_type<- factor(ndd$toilet_type, levels = c(0,1),
                          labels = c("Unimproved pit latrine/OD","Improved pit latrine/toilet"))
-
-table(ndd$toilet_type)
+label(ndd$F_toilet_type)<- "Toilet type"
 
 #toilet location
-label(ndd$toilet_location)<- "Toilet location"
 ndd$toilet_location<- ifelse(ndd$toilet_location <=2, 1,
                              ifelse(ndd$toilet_location ==3, 0, NA))
 ndd$toilet_location<- factor(ndd$toilet_location, levels = c(0,1),
                              labels = c("On property","Elsewhere"))
-
-sum(is.na(ndd$shared_toilet))
-
-miss_toilet <- data.frame(ndd$toilet_location, ndd$shared_toilet, ndd$toilet_type)
+label(ndd$toilet_location)<- "Toilet location"
 
 #shared toilet
-label(ndd$shared_toilet)<- "Shared toilet"
 ndd$shared_toilet<- ifelse(ndd$shared_toilet == 0,0,
                     ifelse(ndd$shared_toilet == 1,1,
                     ifelse(ndd$shared_toilet == 2,0, NA)))
 ndd$shared_toilet<- factor(ndd$shared_toilet, levels = c(0,1),
                            labels = c("No","Yes"))
+label(ndd$shared_toilet)<- "Shared toilet"
 
 #number of hh sharing toilet
 label(ndd$toilet_number_ppl)<- "Number of households using same toilet"
 
-##septic tank variables
-label(ndd$septic_empty_yn_b)<- "Septic tank has been emptied"
-ndd$septic_empty_yn_b<- ifelse(ndd$septic_empty_yn_b == 2,0,
-                               ifelse(ndd$septic_empty_yn_b == 1,1,
-                                      ifelse(ndd$septic_empty_yn_b == 0,0, NA)))
-ndd$septic_empty_yn_b<- factor(ndd$septic_empty_yn_b, levels = c(0,1),
-                               labels = c("No","Yes"))
 
-label(ndd$septic_empty_provider_b)<- "Septic tank emptied by provider"
-ndd$septic_empty_provider_b<- ifelse(ndd$septic_empty_provider_b ==0,0,
-                                     ifelse(ndd$septic_empty_yn_b ==2,0,
-                                     ifelse(ndd$septic_empty_provider_b ==1,1, NA)))
-ndd$septic_empty_provider_b<- factor(ndd$septic_empty_provider_b, levels = c(0,1),
-                                     labels = c("No/Unsure","Yes"))
 ```
 
 
-```{r }
-#Missing values
+```{r}
+#Addressing NA values
+
 library(VIM) 
 library(mice) 
 library(lattice)
 install.packages("naniar")
 library(naniar)
 
-work_ndd<- data.frame(ndd$id, ndd$age_months_b, ndd$sex, ndd$maternal_education, ndd$maternal_age, ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b, ndd$tv, ndd$refrigerator, ndd$electricity, ndd$rooms_hh, ndd$house_roof, ndd$house_floor, ndd$hh_income, ndd$toilet_type, ndd$shared_toilet, ndd$breastfeeding_now, ndd$micro_iron, ndd$micro_vitamina, ndd$micro_zinc, ndd$micro_vitamind, ndd$mmd_b, ndd$hhds_b)
+work_ndd<- data.frame(ndd$id, ndd$control_case_group, ndd$age_months_b, ndd$sex, ndd$maternal_education, ndd$maternal_age, ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b, ndd$stunted_BL, ndd$underweight_BL, ndd$wasted_BL, ndd$tv, ndd$refrigerator, ndd$electricity, ndd$rooms_hh, ndd$house_roof, ndd$house_floor, ndd$hh_income, ndd$toilet_type, ndd$shared_toilet, ndd$drink_cat, ndd$wash_cat, ndd$breastfeed_ever_yn_b, ndd$breastfeeding_now, ndd$micro_iron, ndd$micro_vitamina, ndd$micro_zinc, ndd$micro_vitamind, ndd$mmd_b, ndd$hhds_b)
 view(work_ndd)
 
-view(ndd)
+
 
 is.na(work_ndd)
 
@@ -368,25 +325,54 @@ miss_case_table(work_ndd)
 
 miss_var_summary(work_ndd)
 miss_var_table(work_ndd)
+#All cases will be kept, NAs will be removed for analysis
+```
 
-work_ndd[139,]
 
-view(ndd)
+```{r}
 
-work_ndd %>% is.na() %>% colSums()
 
-view(ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b)
-
-md.pattern(work_ndd, rotate.names=TRUE)
 
 ```
 
 
 ```{r }
-#missing values
+#Assess continuous variables for normality/outliers
+
+library(ggplot2)
+
+ggplot(data = ndd, aes(x = age_months_b)) +
+  geom_histogram() +
+  labs(x = "Age (months)", title = "Histogram")
+
+ggplot(data = ndd, aes(x = maternal_age)) +
+  geom_histogram() +
+  labs(x = "maternal_age", title = "Histogram")
+
+ggplot(data = ndd, aes(x = number_living_hh)) +
+  geom_histogram() +
+  labs(x = "number in hh", title = "Histogram")
+
+ggplot(data = ndd, aes(x = WHZ_b)) +
+  geom_histogram() +
+  labs(x = "WHZ", title = "Histogram")
+
+ggplot(data = ndd, aes(x = HAZ_b)) +
+  geom_histogram() +
+  labs(x = "HAZ", title = "Histogram")
+
+ggplot(data = ndd, aes(x = WAZ_b)) +
+  geom_histogram() +
+  labs(x = "WAZ", title = "Histogram")
+
+ggplot(data = ndd, aes(x = hhds_b)) +
+  geom_histogram() +
+  labs(x = "HHDS", title = "Histogram")
+```
 
 
-
+```{r }
+#Table 1 W/ p-values
 
 library(table1)
 
@@ -407,27 +393,46 @@ pvalue <- function(x, ...) {
 }
 
 
-demo_tbl1<- table1(~ age_months_b + sex + maternal_education + maternal_age + livestock + tv + refrigerator + electricity + rooms_hh + house_floor + house_roof + hh_income + number_living_hh + toilet_type + shared_toilet + toilet_number_ppl + toilet_location + septic_empty_yn_b + septic_empty_provider_b + breastfeeding_now + micro_iron + micro_vitamina + micro_vitamind + micro_zinc + mmd_b + hhds_b| control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
+demo_tbl1<- table1(~ age_months_b + sex + maternal_education + maternal_age + hh_income
+                   |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
 demo_tbl1
+
+tbl1_assets<- table1(~ F_livestock + F_tv + F_refrigerator + F_electricity + 
+                         F_house_floor + F_house_roof + number_living_hh
+                     |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)   
+tbl1_assets
+
+tbl1_WASH<- table1(~ toilet_type + shared_toilet + toilet_number_ppl + toilet_location
+                   |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
+tbl1_WASH
+
+
+                        +  + breastfeeding_now + micro_iron + micro_vitamina + micro_vitamind + micro_zinc + mmd_b + hhds_b| control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
+demo_tbl1
+
+```
+
+
+```{r }
+
+
+```
+
+
+```{r }
+
+
+```
+
+
+```{r }
+
 ```
 ```{r}
 
 
 
-view(ndd)
 
-ndd_ffq <- data.frame(,
-                      , , ,
-                      , , ,
-                      , , ,
-                      , , ,
-                      , , ,
-                      , , ,
-                      , , , ,
-                      , )
-
-ndd_ffq[is.na(ndd_ffq)] = 0
-is.na(ndd_ffq)
 
 
 
