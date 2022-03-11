@@ -26,7 +26,7 @@ library(table1)
 
 ndd <- read_excel("/Users/noahwolthausen/Desktop/Capstone/NDD.Master.xlsx")
 
-
+ndd <-ndd[-c(201),]
 
 ```
 ```{r}
@@ -182,9 +182,9 @@ label(ndd$maternal_age) <- "Caregiver age"
 ndd$maternal_education<- ifelse(ndd$maternal_education<=2, 0,
                                 ifelse(ndd$maternal_education>=3, 1, NA))
 ndd$maternal_education[is.na(ndd$maternal_education)] = 0
-ndd$maternal_education <- factor(ndd$maternal_education, levels = c(0,1), 
+ndd$F_maternal_education <- factor(ndd$maternal_education, levels = c(0,1), 
                                  labels = c("Primary education or less", "Secondary education or above"))
-label(ndd$maternal_education) <- "Caregiver education"
+label(ndd$F_maternal_education) <- "Caregiver education"
 ```
 
 
@@ -238,7 +238,6 @@ label(ndd$F_home) <- "Home"
 ndd$F_livestock<- factor(ndd$livestock, levels = c(0:1),
                        labels = c("Do not own", "Own"))
 label(ndd$F_livestock)<- "Livestock"
-view(ndd)
 
 ndd$F_telephone<- factor(ndd$telephone, levels = c(0:1), 
                          labels = c("Do not own", "Own"))
@@ -265,10 +264,10 @@ ndd$F_house_roof<- factor(ndd$house_roof, levels = c(0,1),
 label(ndd$F_house_roof)<- "Roof type"
 
 #living in hh
-label(ndd$number_living_hh)<- "Number of people in household"
-
 ndd$cat_num_liv_hh<- ifelse(ndd$number_living_hh<=5, 1,
                               ifelse(ndd$number_living_hh>=6, 0, NA))
+label(ndd$number_living_hh)<- "Number of people in household"
+
 
 #rooms in house
 label(ndd$rooms_hh)<- "Household rooms"
@@ -331,6 +330,45 @@ miss_var_table(work_ndd)
 
 ```{r}
 
+#new datafram with only variables for pca
+pca_ndd<- data.frame(ndd$toilet_type, ndd$home,
+                     ndd$livestock, ndd$telephone, ndd$tv,
+                     ndd$refrigerator, ndd$electricity, ndd$house_floor, 
+                     ndd$house_roof, ndd$maternal_education)
+
+#running PCA with variables
+
+pc.ndd<- princomp(pca_ndd, cor = TRUE)
+names(pc.ndd)
+
+#summary
+summary(pc.ndd)
+
+#eigenvalues
+eigenvectors <- pc.ndd$loadings
+eigenvalues <- pc.ndd$sdev *pc.ndd$sdev
+
+round(cor(pca_ndd, pc.ndd$scores), 3)
+
+#creating the index with PCA1 which explains the most variance
+index=pc.ndd$scores[,1]
+
+#continuous variable of WI
+ndd<-mutate(ndd,WI_scores=as.numeric(index))
+
+#PCA1 is broken down into 5 quintiles to represent wealth. 1st quintile represents the least wealthy 20% and 5th quintile is the most wealthy 20%.
+nlab<-c(1,2,3,4,5)
+
+ndd<-mutate(ndd,WI_quintile=as.factor(cut(index,breaks=5,labels=nlab)))
+
+#make the wealth index a factor
+ndd$WI_quintile<- factor(ndd$WI_quintile, levels = c(1:5), 
+       labels = c("Wealth index quintile 1", "Wealth index quintile 2", 
+                  "Wealth index quintile 3", "Wealth index quintile 4", "Wealth index quintile 5"))
+label(ndd$WI_quintile)<- "Wealth index quintile"
+
+
+summary(ndd$WI_quintile)
 
 
 ```
@@ -406,9 +444,10 @@ tbl1_WASH<- table1(~ toilet_type + shared_toilet + toilet_number_ppl + toilet_lo
                    |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
 tbl1_WASH
 
-
-                        +  + breastfeeding_now + micro_iron + micro_vitamina + micro_vitamind + micro_zinc + mmd_b + hhds_b| control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
-demo_tbl1
+tbl1_nut<- table1(~ breastfeed_ever_yn_b + breastfeeding_now + micro_iron + micro_vitamina 
+                  + micro_vitamind + micro_zinc + mmd_b + hhds_b
+                  |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
+tbl1_nut
 
 ```
 
