@@ -461,13 +461,30 @@ my.render.cat <- function(x) {
         sprintf("%d (%0.0f %%)", FREQ, PCT))))
 }
 
-table1(strata, labels, groupspan = c(1, 2, 2),
-       render.continuous=my.render.cont, render.categorical=my.render.cat)
+rndr <- function(x, ...) {
+    y <- render.default(x, ...)
+    if (is.logical(x)) y[2] else y
+}
+
+demo_tbl<- table1(strata, labels, groupspan = c(1, 2, 2),
+       render.continuous=my.render.cont, render.categorical=my.render.cat, render = rndr)
+demo_tbl
+
+ndd$log_livestock<- as.logical(ndd$F_livestock)
+
+rndr <- function(x, ...) {
+    y <- render.default(x, ...)
+    if (is.logical(x)) y[1] else y
+}
+
+
 
 tbl1_assets<- table1(~ F_livestock + F_tv + F_refrigerator + F_electricity + 
                          F_house_floor + F_house_roof + cat_num_liv_hh + WI_scores + WI_quintile
-                     |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)   
+                     |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
 tbl1_assets
+
+help(table1)
 
 tbl1_WASH<- table1(~ F_toilet_type + shared_toilet + toilet_number_ppl + toilet_location
                    |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
