@@ -266,7 +266,9 @@ label(ndd$F_house_roof)<- "Roof type"
 #living in hh
 ndd$cat_num_liv_hh<- ifelse(ndd$number_living_hh<=5, 1,
                               ifelse(ndd$number_living_hh>=6, 0, NA))
-label(ndd$number_living_hh)<- "Number of people in household"
+ndd$cat_num_liv_hh<- factor(ndd$cat_num_liv_hh, levels = c(0,1),
+                            labels = c("5 or less", "More than 5"))
+label(ndd$cat_num_liv_hh)<- "Number of people in household"
 
 
 #rooms in house
@@ -406,6 +408,10 @@ ggplot(data = ndd, aes(x = WAZ_b)) +
 ggplot(data = ndd, aes(x = hhds_b)) +
   geom_histogram() +
   labs(x = "HHDS", title = "Histogram")
+
+ggplot(data = ndd, aes(x = WI_scores)) +
+  geom_histogram() +
+  labs(x = "Wealth Index", title = "Histogram")
 ```
 
 
@@ -435,12 +441,35 @@ demo_tbl1<- table1(~ age_months_b + sex + maternal_education + maternal_age + hh
                    |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
 demo_tbl1
 
+labels <- list(
+  variables=list(age_months_b="Age (months)",
+                 sex="Sex",
+                 F_maternal_education="Caregiver education",
+                 maternal_age="Caregiver age"),
+  groups=list("", "Acute diarrhea", "")
+)
+
+strata <- c(list(Total=ndd), split(ndd, ndd$control_case_group))
+
+my.render.cont <- function(x) {
+  with(stats.apply.rounding(stats.default(x), digits=2), c("",
+        "Mean (SD)"=sprintf("%s (&plusmn; %s)", MEAN, SD)))
+}
+
+my.render.cat <- function(x) {
+    c("", sapply(stats.default(x), function(y) with(y,
+        sprintf("%d (%0.0f %%)", FREQ, PCT))))
+}
+
+table1(strata, labels, groupspan = c(1, 2, 2),
+       render.continuous=my.render.cont, render.categorical=my.render.cat)
+
 tbl1_assets<- table1(~ F_livestock + F_tv + F_refrigerator + F_electricity + 
-                         F_house_floor + F_house_roof + number_living_hh
+                         F_house_floor + F_house_roof + cat_num_liv_hh + WI_scores + WI_quintile
                      |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)   
 tbl1_assets
 
-tbl1_WASH<- table1(~ toilet_type + shared_toilet + toilet_number_ppl + toilet_location
+tbl1_WASH<- table1(~ F_toilet_type + shared_toilet + toilet_number_ppl + toilet_location
                    |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
 tbl1_WASH
 
