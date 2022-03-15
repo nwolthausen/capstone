@@ -150,13 +150,13 @@ ndd$micro_vitamina<- factor(ndd$micro_vitamina, levels = c(0,1),
 label(ndd$micro_vitamina)<- "Vitamin A consumption"
 
 #breastfeeding/nutrition
-label(ndd$breastfeeding_now)<- "Currently breastfeeding"
 ndd$breastfeeding_now<- factor(ndd$breastfeeding_now, levels = c(0,1),
                                labels = c("No","Yes"))
+label(ndd$breastfeeding_now)<- "Currently breastfeeding"
 
-label(ndd$breastfeed_ever_yn_b)<- "Has child ever breastfed?"
 ndd$breastfeed_ever_yn_b<- factor(ndd$breastfeed_ever_yn_b, levels = c(0,1),
                                   labels = c("No","Yes"))
+label(ndd$breastfeed_ever_yn_b)<- "Has child ever breastfed?"
 
 label(ndd$mmd_b)<- "MMD"
 label(ndd$hhds_b)<- "HHDS"
@@ -193,8 +193,17 @@ label(ndd$F_maternal_education) <- "Caregiver education"
 label(ndd$HAZ_b)<- "HAZ"
 label(ndd$WAZ_b)<- "WAZ"
 label(ndd$WHZ_b)<- "WHZ"
+
+ndd$stunted_BL<- factor(ndd$stunted_BL, levels = c(0,1),
+                        labels = c("No","Yes"))
 label(ndd$stunted_BL)<- "Stunted"
+
+ndd$underweight_BL<- factor(ndd$underweight_BL, levels = c(0,1),
+                            labels = c("No","Yes"))
 label(ndd$underweight_BL)<- "Underweight"
+
+ndd$wasted_BL<- factor(ndd$wasted_BL, levels = c(0,1),
+                       labels = c("No","Yes"))
 label(ndd$wasted_BL)<- "Wasted"
 ```
 
@@ -368,6 +377,7 @@ ndd$WI_quintile<- factor(ndd$WI_quintile, levels = c(1:5),
        labels = c("Wealth index quintile 1", "Wealth index quintile 2", 
                   "Wealth index quintile 3", "Wealth index quintile 4", "Wealth index quintile 5"))
 label(ndd$WI_quintile)<- "Wealth index quintile"
+label(ndd$WI_scores)<- "Wealth index score"
 
 
 summary(ndd$WI_quintile)
@@ -412,6 +422,10 @@ ggplot(data = ndd, aes(x = hhds_b)) +
 ggplot(data = ndd, aes(x = WI_scores)) +
   geom_histogram() +
   labs(x = "Wealth Index", title = "Histogram")
+
+ggplot(data = ndd, aes(x = ndd$diarrhea_days_b)) +
+  geom_histogram() +
+  labs(x = "days of diarrhea", title = "Histogram")
 ```
 
 
@@ -436,69 +450,47 @@ pvalue <- function(x, ...) {
     c("", sub("<", "&lt;", format.pval(p, digits=3, eps=0.001)))
 }
 
+tbl1<- table1(~ age_months_b + sex + HAZ_b + WAZ_b + 
+                       WHZ_b + underweight_BL + stunted_BL + 
+                       wasted_BL + F_maternal_education + 
+                       maternal_age + hh_income +  F_livestock + 
+                       F_tv + F_refrigerator + F_electricity + 
+                       F_house_floor + F_house_roof + cat_num_liv_hh + 
+                       WI_scores + WI_quintile + F_toilet_type + 
+                       breastfeed_ever_yn_b + breastfeeding_now + micro_iron + 
+                       micro_vitamina + micro_vitamind + micro_zinc + 
+                       mmd_b + hhds_b + shared_toilet + toilet_location + 
+                       breastfeed_ever_yn_b + breastfeeding_now + micro_iron + 
+                       micro_vitamina + micro_vitamind + micro_zinc + mmd_b + hhds_b 
+                     |control_case_group, data = ndd, overall = F, render.missing=NULL, 
+                     render.categorical="FREQ (PCTnoNA%)", rowlabelhead = "Acute diarrhea", 
+              extra.col= list(`P-value`=pvalue), na.rm= TRUE)
+tbl1
 
-demo_tbl1<- table1(~ age_months_b + sex + maternal_education + maternal_age + hh_income
-                   |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
-demo_tbl1
-
-labels <- list(
-  variables=list(age_months_b="Age (months)",
-                 sex="Sex",
-                 F_maternal_education="Caregiver education",
-                 maternal_age="Caregiver age"),
-  groups=list("", "Acute diarrhea", "")
-)
-
-strata <- c(list(Total=ndd), split(ndd, ndd$control_case_group))
-
-my.render.cont <- function(x) {
-  with(stats.apply.rounding(stats.default(x), digits=2), c("",
-        "Mean (SD)"=sprintf("%s (&plusmn; %s)", MEAN, SD)))
-}
-
-my.render.cat <- function(x) {
-    c("", sapply(stats.default(x), function(y) with(y,
-        sprintf("%d (%0.0f %%)", FREQ, PCT))))
-}
-
-rndr <- function(x, ...) {
-    y <- render.default(x, ...)
-    if (is.logical(x)) y[2] else y
-}
-
-demo_tbl<- table1(strata, labels, groupspan = c(1, 2, 2),
-       render.continuous=my.render.cont, render.categorical=my.render.cat, render = rndr)
-demo_tbl
-
-ndd$log_livestock<- as.logical(ndd$F_livestock)
-
-rndr <- function(x, ...) {
-    y <- render.default(x, ...)
-    if (is.logical(x)) y[1] else y
-}
-
-
-
-tbl1_assets<- table1(~ F_livestock + F_tv + F_refrigerator + F_electricity + 
-                         F_house_floor + F_house_roof + cat_num_liv_hh + WI_scores + WI_quintile
-                     |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
-tbl1_assets
-
-help(table1)
-
-tbl1_WASH<- table1(~ F_toilet_type + shared_toilet + toilet_number_ppl + toilet_location
-                   |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
-tbl1_WASH
-
-tbl1_nut<- table1(~ breastfeed_ever_yn_b + breastfeeding_now + micro_iron + micro_vitamina 
-                  + micro_vitamind + micro_zinc + mmd_b + hhds_b
-                  |control_case_group, data = ndd, overall = F, extra.col= list(`P-value`=pvalue), na.rm= TRUE)
-tbl1_nut
 
 ```
 
 
 ```{r }
+#analysis
+#logistic regression of micro nutrient consumption and diarrhea cases
+
+install.packages("pacman")
+pacman::p_load(ROCR, odds.n.ends, blorr, lmtest, car) 
+
+#iron alone
+micronut_iron_logit <- glm(control_case_group ~ micro_iron, data=ndd, family="binomial")
+summary(micronut_logit)
+odds.n.ends(micronut_logit)
+#the odds of having diarrhea for those who consumed iron-rich foods are 1.3 times the odds for those who did not
+
+#
+micronut_iron_logit <- glm(control_case_group ~ micro_iron, data=ndd, family="binomial")
+summary(micronut_logit)
+odds.n.ends(micronut_logit)
+
+sum(is.na(ndd$diarrhea_days_b))
+summary(ndd$diarrhea_days_b)
 
 
 ```
