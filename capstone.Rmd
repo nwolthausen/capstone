@@ -415,6 +415,8 @@ ggplot(data = ndd, aes(x = WAZ_b)) +
   geom_histogram() +
   labs(x = "WAZ", title = "Histogram")
 
+boxplot(ndd$WAZ_b ~ ndd$control_case_group, outline = TRUE)
+
 ggplot(data = ndd, aes(x = hhds_b)) +
   geom_histogram() +
   labs(x = "HHDS", title = "Histogram")
@@ -475,22 +477,40 @@ tbl1
 #analysis
 #logistic regression of micro nutrient consumption and diarrhea cases
 
+
+
 install.packages("pacman")
-pacman::p_load(ROCR, odds.n.ends, blorr, lmtest, car) 
+pacman::p_load(ROCR, odds.n.ends, blorr, lmtest, car)
+install.packages("jtools")
+library(jtools)
 
 #iron alone
-micronut_iron_logit <- glm(control_case_group ~ micro_iron, data=ndd, family="binomial")
-summary(micronut_logit)
-odds.n.ends(micronut_logit)
-#the odds of having diarrhea for those who consumed iron-rich foods are 1.3 times the odds for those who did not
+fullasset_mod<- glm(control_case_group ~age_months_b+sex+WI_quintile, data = ndd, family = "binomial")
+summary(fullasset_mod)
+summ(fullasset_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(fullasset_mod)
 
-#
-micronut_iron_logit <- glm(control_case_group ~ micro_iron, data=ndd, family="binomial")
-summary(micronut_logit)
-odds.n.ends(micronut_logit)
+nutlogit <- glm(control_case_group ~ age_months_b+sex+breastfeed_ever_yn_b+breastfeeding_now+
+                  micro_vitamina+micro_vitamind+micro_iron+micro_zinc+
+                  mmd_b+hhds_b, data=ndd, family="binomial")
+summary(nutlogit)
+summ(nutlogit, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(nutlogit)
 
-sum(is.na(ndd$diarrhea_days_b))
-summary(ndd$diarrhea_days_b)
+toiletlogit<- glm(control_case_group ~ age_months_b+sex+F_toilet_type+toilet_location, data=ndd, family="binomial")
+summary(toiletlogit)
+summ(toiletlogit, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(toiletlogit)
+
+momlogit<- glm(control_case_group ~ age_months_b+sex+F_maternal_education+maternal_age, data=ndd, family="binomial")
+summary(momlogit)
+summ(momlogit, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(momlogit)
+
+childgrowlogit<- glm(control_case_group ~age_months_b+sex+HAZ_b+WAZ_b+WHZ_b, data=ndd, family="binomial")
+summary(childgrowlogit)
+summ(childgrowlogit, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(childgrowlogit)
 
 
 ```
