@@ -423,7 +423,7 @@ ggplot(data = ndd, aes(x = WI_scores)) +
   geom_histogram() +
   labs(x = "Wealth Index", title = "Histogram")
 
-ggplot(data = ndd, aes(x = ndd$diarrhea_days_b)) +
+ggplot(data = ndd, aes(x = diarrhea_days_b)) +
   geom_histogram() +
   labs(x = "days of diarrhea", title = "Histogram")
 ```
