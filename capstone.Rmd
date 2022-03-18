@@ -480,9 +480,12 @@ tbl1
 
 
 install.packages("pacman")
+library(pacman)
 pacman::p_load(ROCR, odds.n.ends, blorr, lmtest, car)
 install.packages("jtools")
 library(jtools)
+library(tidyverse)
+library(dplyr)
 
 #iron alone
 fullasset_mod<- glm(control_case_group ~age_months_b+sex+WI_quintile, data = ndd, family = "binomial")
@@ -511,6 +514,24 @@ childgrowlogit<- glm(control_case_group ~age_months_b+sex+HAZ_b+WAZ_b+WHZ_b, dat
 summary(childgrowlogit)
 summ(childgrowlogit, confint= TRUE, pvals = TRUE, digits = 3)
 odds.n.ends(childgrowlogit)
+
+plot(childgrowlogit, which=4, id.n=5, col="red") 
+
+#Cook's D cutoff=0.0015 Or you can define use the rules described in the lecture
+cutoff <- 0.0015 
+
+#identify observations with a Cook's Distance greater than cutoff
+obs_no <- as.data.frame(cooks.distance(childgrowlogit))
+  mutate(obs_no=row_number())
+  filter(`cooks.distance(childgrowlogit)` > cutoff)
+
+#Let's exclude the values shown in the Cook's D plot, and see how the models compare.
+
+childgrowlogit.modex <- update(childgrowlogit,subset=c(-obs_no$obs_no))
+summary(childgrowlogit.modex)
+
+#compare coefficients between models with and without influential observations, #caveat model number of observations is not the same
+compareCoefs(bmi_catIncLogit, bmi_catIncLogit.modex)
 
 
 ```
