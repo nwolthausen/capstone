@@ -428,6 +428,8 @@ ggplot(data = ndd, aes(x = WI_scores)) +
 ggplot(data = ndd, aes(x = diarrhea_days_b)) +
   geom_histogram() +
   labs(x = "days of diarrhea", title = "Histogram")
+
+summary(ndd$diarrhea_days_b)
 ```
 
 
@@ -517,12 +519,14 @@ odds.n.ends(childgrowlogit)
 
 plot(childgrowlogit, which=4, id.n=5, col="red") 
 
+waz_id <- data.frame(ndd$id, ndd$WAZ_b, ndd$HAZ_b, ndd$WHZ_b)
+
 #Cook's D cutoff=0.0015 Or you can define use the rules described in the lecture
 cutoff <- 0.0015 
 
 #identify observations with a Cook's Distance greater than cutoff
-obs_no <- as.data.frame(cooks.distance(childgrowlogit))
-  mutate(obs_no=row_number())
+obs_no <- as.data.frame(cooks.distance(childgrowlogit)) %>%
+  mutate(obs_no=row_number()) %>%
   filter(`cooks.distance(childgrowlogit)` > cutoff)
 
 #Let's exclude the values shown in the Cook's D plot, and see how the models compare.
@@ -537,9 +541,69 @@ compareCoefs(bmi_catIncLogit, bmi_catIncLogit.modex)
 ```
 
 
-```{r }
+```{r, eval=FALSE}
+#Poisson/Neg binomial regression with days of diarrhea 
+
+install.packages("stargazer")
+install.packages("sandwich") 
+install.packages("MASS") 
+install.packages("lmtest") 
+install.packages("AER")
+
+library(stargazer)
+library(sandwich)
+library(MASS)
+library(lmtest)
+library(AER)
+
+glm.RR <- function(GLM.RESULT, digits = 2) {
+
+    if (GLM.RESULT$family$family == "binomial") {
+        LABEL <- "OR"
+    } else if (GLM.RESULT$family$family == "poisson") {
+        LABEL <- "RR"
+    } else {
+        stop("Not logistic or Poisson model")
+    }
+
+    COEF      <- stats::coef(GLM.RESULT)
+    CONFINT   <- stats::confint(GLM.RESULT)
+    TABLE     <- cbind(coef=COEF, CONFINT)
+    TABLE.EXP <- round(exp(TABLE), digits)
+
+    colnames(TABLE.EXP)[1] <- LABEL
+
+    TABLE.EXP
+
+    
+d <- density(ndd$diarrhea_days_b) 
+plot(d, xlim=c(0,14))
+hist(nonmel$cases, breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))
+    
+dd_poisson <- glm(diarrhea_days_b ~ sex +age_months_b, family ="poisson", data = ndd)
+summary(dd_poisson) 
+
+dd_negbin <- glm.nb(diarrhea_days_b ~ sex +age_months_b+WI_scores, data = ndd)
+summary(dd_negbin) 
+
+lrtest(dd_poisson, dd_negbin)
+
+#overdispersion is present, will use neg binomial regression
+
+cov.dd_negbin <- vcovHC(dd_negbin, type="HC0")
+std.err <- sqrt(diag(cov.dd_negbin))
+
+#make a table of estimates from the model on the log scale
+r.est <- cbind(Estimate= exp(coef(dd_negbin)), "Robust SE" = std.err,
+"Pr(>|z|)" = 2 * pnorm(abs(coef(dd_negbin)/std.err), lower.tail=FALSE),
+LL = exp(coef(dd_negbin) - 1.96 * std.err),
+UL = exp(coef(dd_negbin) + 1.96 * std.err))
+options(digits=4)
+r.est
 
 
+
+    
 ```
 
 
