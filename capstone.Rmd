@@ -85,6 +85,12 @@ ndd$drink_cat <- factor(ndd$drink_cat, levels = c(1:7),
                                               "Tap","Tanker","Well","Other"))
 label(ndd$drink_cat) <- "Drinking water source"
 
+table(ndd$drink_cat, ndd$control_case_group)
+
+ndd <- ndd %>%
+    mutate(F_drink = case_when(drink_cat = 1 ~ 1, 
+                                TRUE ~ 0))
+
 #combine all wash
 ndd$wash_cat <- ifelse(ndd$wash_bottled == 1,1,
                 (ifelse(ndd$wash_publis == 1,2, 
@@ -98,6 +104,8 @@ ndd$wash_cat <- factor(ndd$wash_cat, levels = c(1:7),
                        labels = c("Bottled","Public pump","Spring",
                                               "Tap","Tanker","Well","Other"))
 label(ndd$wash_cat)<- "Bathing water source"
+
+
 ```
 
 
@@ -489,7 +497,14 @@ library(jtools)
 library(tidyverse)
 library(dplyr)
 
-#iron alone
+#base model
+base_mod<- glm(control_case_group ~ age_months_b+sex+HAZ_b+F_toilet_type+drink_cat,
+                 data = ndd, family = "binomial")
+summary(base_mod)
+summ(base_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(base_mod)
+
+
 fullasset_mod<- glm(control_case_group ~age_months_b+sex+WI_quintile, data = ndd, family = "binomial")
 summary(fullasset_mod)
 summ(fullasset_mod, confint= TRUE, pvals = TRUE, digits = 3)
@@ -512,7 +527,7 @@ summary(momlogit)
 summ(momlogit, confint= TRUE, pvals = TRUE, digits = 3)
 odds.n.ends(momlogit)
 
-childgrowlogit<- glm(control_case_group ~age_months_b+sex+HAZ_b+WAZ_b+WHZ_b, data=ndd, family="binomial")
+childgrowlogit<- glm(control_case_group ~age_months_b+sex+stunted_BL, data=ndd, family="binomial")
 summary(childgrowlogit)
 summ(childgrowlogit, confint= TRUE, pvals = TRUE, digits = 3)
 odds.n.ends(childgrowlogit)
