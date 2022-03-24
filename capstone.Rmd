@@ -27,6 +27,10 @@ library(table1)
 ndd <- read_excel("/Users/noahwolthausen/Desktop/Capstone/NDD.Master.xlsx")
 
 ndd <-ndd[-c(201),]
+ndd <-ndd[-c(138),]
+ndd <-ndd[-c(144),] #excluded because of extreme HAZ
+ndd <-ndd[-c(37),] #excluded because of extreme WHZ
+
 
 ```
 ```{r}
@@ -118,7 +122,6 @@ label(ndd$micro_zinc)<- "Zinc consumption"
 
 ndd$micro_iron <- ifelse(ndd$beans >= 1,1,
                   ifelse(ndd$darkgreen_vegetables >= 1,1,
-                  ifelse(ndd$tomato >= 1,1,
                   ifelse(ndd$flesh_meat >= 1,1,
                   ifelse(ndd$potatoes >= 1,1,
                   ifelse(ndd$eggs >= 1,1,
@@ -161,6 +164,10 @@ label(ndd$breastfeed_ever_yn_b)<- "Has child ever breastfed?"
 
 label(ndd$mmd_b)<- "MMD"
 label(ndd$hhds_b)<- "HHDS"
+
+ndd$asf_yn_b<- factor(ndd$asf_yn_b, levels = c(0,1),
+                      labels = c("No","Yes"))
+label(ndd$asf_yn_b)<- "ASF consumption"
 ```
 
 
@@ -186,6 +193,10 @@ ndd$maternal_education[is.na(ndd$maternal_education)] = 0
 ndd$F_maternal_education <- factor(ndd$maternal_education, levels = c(0,1), 
                                  labels = c("Primary education or less", "Secondary education or above"))
 label(ndd$F_maternal_education) <- "Caregiver education"
+
+ndd$teen_mother<- factor(ndd$teen_mother, levels = c(0,1),
+                         labels = c("No","Yes"))
+label(ndd$teen_mother)<- "Teen mother"
 ```
 
 
@@ -336,6 +347,8 @@ miss_case_table(work_ndd)
 
 miss_var_summary(work_ndd)
 miss_var_table(work_ndd)
+
+
 #All cases will be kept, NAs will be removed for analysis
 ```
 
@@ -346,7 +359,7 @@ miss_var_table(work_ndd)
 pca_ndd<- data.frame(ndd$toilet_type, ndd$home,
                      ndd$livestock, ndd$telephone, ndd$tv,
                      ndd$refrigerator, ndd$electricity, ndd$house_floor, 
-                     ndd$house_roof, ndd$maternal_education)
+                     ndd$house_roof)
 
 #running PCA with variables
 
@@ -430,7 +443,10 @@ ggplot(data = ndd, aes(x = diarrhea_days_b)) +
   geom_histogram() +
   labs(x = "days of diarrhea", title = "Histogram")
 
-summary(ndd$diarrhea_days_b)
+growth<- data.frame(ndd$id, ndd$WAZ_b, ndd$HAZ_b, ndd$WHZ_b)
+summary(ndd$WAZ_b)
+summary(ndd$HAZ_b)
+summary(ndd$WHZ_b)
 ```
 
 
@@ -489,12 +505,27 @@ library(tidyverse)
 library(dplyr)
 
 #base model
-base_mod<- glm(control_case_group ~ age_months_b+sex+HAZ_b+F_toilet_type+drink_cat+F_maternal_education,
+base_mod<- glm(control_case_group ~ age_months_b+sex+HAZ_b+F_toilet_type+
+                 toilet_location+F_maternal_education+teen_mother,
                  data = ndd, family = "binomial")
 summary(base_mod)
 summ(base_mod, confint= TRUE, pvals = TRUE, digits = 3)
 odds.n.ends(base_mod)
 
+#SES model
+ses_mod<- glm(control_case_group ~ age_months_b+sex+HAZ_b+F_toilet_type+F_maternal_education+
+              ,
+                 data = ndd, family = "binomial")
+summary(ses_mod)
+summ(ses_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(ses_mod)
+
+#Nutrition model
+nut_mod<- glm(control_case_group ~micro_zinc,
+              data = ndd, family = "binomial")
+summary(nut_mod)
+summ(nut_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(nut_mod)
 
 
 fullasset_mod<- glm(control_case_group ~age_months_b+sex+WI_quintile, data = ndd, family = "binomial")
