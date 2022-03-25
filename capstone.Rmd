@@ -32,6 +32,7 @@ ndd <-ndd[-c(144),] #excluded because of extreme HAZ
 ndd <-ndd[-c(37),] #excluded because of extreme WHZ
 
 
+
 ```
 ```{r}
 #missing values
@@ -126,7 +127,7 @@ ndd$micro_iron <- ifelse(ndd$beans >= 1,1,
                   ifelse(ndd$potatoes >= 1,1,
                   ifelse(ndd$eggs >= 1,1,
                   ifelse(ndd$iron == 1,1,
-                  ifelse(ndd$chicken...89 >= 1,1, 0))))))))
+                  ifelse(ndd$chicken...89 >= 1,1, 0)))))))
 ndd$micro_iron<- factor(ndd$micro_iron, levels = c(0,1),
                         labels = c("No","Yes"))
 label(ndd$micro_iron)<- "Iron consumption"
@@ -293,7 +294,12 @@ label(ndd$cat_num_liv_hh)<- "Number of people in household"
 
 
 #rooms in house
-label(ndd$rooms_hh)<- "Household rooms"
+ndd$rooms_hh<- ifelse(ndd$rooms_hh>=3, 1,
+                      ifelse(ndd$rooms_hh<=2,0,NA))
+ndd$F_rooms_hh<- factor(ndd$rooms_hh, levels = c(0,1),
+                        labels = c("2 rooms or less","3 rooms or more"))
+label(ndd$F_rooms_hh)<- "Household rooms"
+
 ```
 
 
@@ -332,7 +338,6 @@ label(ndd$toilet_number_ppl)<- "Number of households using same toilet"
 library(VIM) 
 library(mice) 
 library(lattice)
-install.packages("naniar")
 library(naniar)
 
 work_ndd<- data.frame(ndd$id, ndd$control_case_group, ndd$age_months_b, ndd$sex, ndd$maternal_education, ndd$maternal_age, ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b, ndd$stunted_BL, ndd$underweight_BL, ndd$wasted_BL, ndd$tv, ndd$refrigerator, ndd$electricity, ndd$rooms_hh, ndd$house_roof, ndd$house_floor, ndd$hh_income, ndd$toilet_type, ndd$shared_toilet, ndd$drink_cat, ndd$wash_cat, ndd$breastfeed_ever_yn_b, ndd$breastfeeding_now, ndd$micro_iron, ndd$micro_vitamina, ndd$micro_zinc, ndd$micro_vitamind, ndd$mmd_b, ndd$hhds_b)
@@ -350,18 +355,21 @@ miss_var_table(work_ndd)
 
 
 #All cases will be kept, NAs will be removed for analysis
+ndd$livestock
+ndd$toilet_type
+ndd$house_floor, 
+                     ndd$house_roof ndd$electricity
 ```
 
 
 ```{r}
 
-#new datafram with only variables for pca
-pca_ndd<- data.frame(ndd$toilet_type, ndd$home,
-                     ndd$livestock, ndd$telephone, ndd$tv,
-                     ndd$refrigerator, ndd$electricity, ndd$house_floor, 
-                     ndd$house_roof)
+#new dataframe with only variables for pca
+pca_ndd<- data.frame(ndd$home, ndd$telephone, ndd$tv, ndd$refrigerator, ndd$rooms_hh)
 
 #running PCA with variables
+
+sum(is.na(pca_ndd))
 
 pc.ndd<- princomp(pca_ndd, cor = TRUE)
 names(pc.ndd)
@@ -476,7 +484,7 @@ tbl1<- table1(~ age_months_b + sex + HAZ_b + WAZ_b +
                        wasted_BL + F_maternal_education + 
                        maternal_age + hh_income +  F_livestock + 
                        F_tv + F_refrigerator + F_electricity + 
-                       F_house_floor + F_house_roof + cat_num_liv_hh + 
+                       F_house_floor + F_house_roof + cat_num_liv_hh + F_rooms_hh +
                        WI_scores + WI_quintile + F_toilet_type + 
                        breastfeed_ever_yn_b + breastfeeding_now + micro_iron + 
                        micro_vitamina + micro_vitamind + micro_zinc + 
@@ -504,21 +512,59 @@ library(jtools)
 library(tidyverse)
 library(dplyr)
 
-#base model
+#SES models
+#HH income unadjusted
+hhinc_mod<- glm(control_case_group ~ hh_income+WI_scores+F_maternal_education+maternal_age+
+                      F_house_roof+F_house_floor+electricity, data = ndd, family = "binomial")
+summary(hhinc_mod)
+summ(hhinc_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(hhinc_mod)
+
+plot(hhinc_mod, which=4, id.n=5, col="red") 
+
+nut_mod<- glm(control_case_group ~ micro_iron+micro_vitamina+micro_vitamind+micro_zinc+
+                asf_yn_b+breastfeed_ever_yn_b+age_months_b+sex+WHZ_b, data = ndd, family = "binomial")
+summary(nut_mod)
+summ(nut_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(nut_mod)
+
+#HH income adjusted (age, sex, stunted)
+adj_hhinc_mod<- glm(control_case_group ~ hh_income+age_months_b+sex+stunted_BL,
+                    data = ndd, family = "binomial")
+summary(adj_hhinc_mod)
+summ(adj_hhinc_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(adj_hhinc_mod)
+
+#Wealth score unadjusted
+wealth_mod<- glm(control_case_group ~ WI_scores, data = ndd, family = "binomial")
+summary(wealth_mod)
+summ(wealth_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(wealth_mod)
+#wealth score adjusted
+adj_wealth_mod<- glm(control_case_group ~ WI_scores+age_months_b+sex+stunted_BL, data = ndd, family = "binomial")
+summary(adj_wealth_mod)
+summ(adj_wealth_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(adj_wealth_mod)
+
+
+
 base_mod<- glm(control_case_group ~ age_months_b+sex+HAZ_b+F_toilet_type+
-                 toilet_location+F_maternal_education+teen_mother,
+                 F_maternal_education,
                  data = ndd, family = "binomial")
 summary(base_mod)
 summ(base_mod, confint= TRUE, pvals = TRUE, digits = 3)
 odds.n.ends(base_mod)
 
+
+
+
 #SES model
-ses_mod<- glm(control_case_group ~ age_months_b+sex+HAZ_b+F_toilet_type+F_maternal_education+
-              ,
+ses_mod<- glm(control_case_group ~age_months_b+sex+stunted_BL+F_toilet_type+F_maternal_education+,
                  data = ndd, family = "binomial")
 summary(ses_mod)
 summ(ses_mod, confint= TRUE, pvals = TRUE, digits = 3)
 odds.n.ends(ses_mod)
+
 
 #Nutrition model
 nut_mod<- glm(control_case_group ~micro_zinc,
