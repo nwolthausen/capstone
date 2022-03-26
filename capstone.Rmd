@@ -365,7 +365,8 @@ ndd$house_floor,
 ```{r}
 
 #new dataframe with only variables for pca
-pca_ndd<- data.frame(ndd$home, ndd$telephone, ndd$tv, ndd$refrigerator, ndd$rooms_hh)
+pca_ndd<- data.frame(ndd$home, ndd$telephone, ndd$tv, ndd$refrigerator, ndd$number_living_hh, ndd$rooms_hh)
+
 
 #running PCA with variables
 
