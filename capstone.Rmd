@@ -355,22 +355,17 @@ miss_var_table(work_ndd)
 
 
 #All cases will be kept, NAs will be removed for analysis
-ndd$livestock
-ndd$toilet_type
-ndd$house_floor, 
-                     ndd$house_roof ndd$electricity
+
+class(ndd$F_livestock)
 ```
 
 
 ```{r}
 
 #new dataframe with only variables for pca
-pca_ndd<- data.frame(ndd$home, ndd$telephone, ndd$tv, ndd$refrigerator, ndd$number_living_hh, ndd$rooms_hh)
-
+pca_ndd<- data.frame(ndd$home, ndd$telephone, ndd$tv, ndd$refrigerator, ndd$rooms_hh)
 
 #running PCA with variables
-
-sum(is.na(pca_ndd))
 
 pc.ndd<- princomp(pca_ndd, cor = TRUE)
 names(pc.ndd)
@@ -505,8 +500,6 @@ tbl1
 #analysis
 #logistic regression of micro nutrient consumption and diarrhea cases
 
-
-
 library(pacman)
 pacman::p_load(ROCR, odds.n.ends, blorr, lmtest, car)
 library(jtools)
@@ -514,113 +507,76 @@ library(tidyverse)
 library(dplyr)
 
 #SES models
-#HH income unadjusted
-hhinc_mod<- glm(control_case_group ~ hh_income+WI_scores+F_maternal_education+maternal_age+
-                      F_house_roof+F_house_floor+electricity, data = ndd, family = "binomial")
+hhinc_mod<- glm(control_case_group ~ age_months_b+HAZ_b+hh_income+WI_scores+F_maternal_education+maternal_age+F_house_floor+F_toilet_type+F_electricity+F_livestock, data = ndd, family = "binomial")
 summary(hhinc_mod)
 summ(hhinc_mod, confint= TRUE, pvals = TRUE, digits = 3)
 odds.n.ends(hhinc_mod)
 
 plot(hhinc_mod, which=4, id.n=5, col="red") 
 
-nut_mod<- glm(control_case_group ~ micro_iron+micro_vitamina+micro_vitamind+micro_zinc+
-                asf_yn_b+breastfeed_ever_yn_b+age_months_b+sex+WHZ_b, data = ndd, family = "binomial")
+#remove outliers
+no.out_nut <-no.out_nut[-c(23),]
+no.out_nut <-no.out_nut[-c(110),]
+no.out_nut <-no.out_nut[-c(103),]
+no.out_nut <-no.out_nut[-c(102),]
+
+#model w/o outliers
+
+no.out_hhinc_mod<- glm(ndd.control_case_group ~ ndd.age_months_b+ndd.HAZ_b+ndd.hh_income+ndd.WI_scores+ndd.F_maternal_education+ndd.maternal_age+ndd.F_house_floor+ndd.F_toilet_type+ndd.F_electricity+ndd.F_livestock, data = no.out_nut, family = "binomial")
+summary(no.out_hhinc_mod)
+summ(no.out_hhinc_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(no.out_hhinc_mod)
+odds.n.ends(hhinc_mod)
+
+#compare both models
+compareCoefs(hhinc_mod, no.out_hhinc_mod) 
+
+#nutrition model
+nut_mod<- glm(control_case_group ~ asf_yn_b+mmd_b+breastfeed_ever_yn_b+age_months_b+sex+HAZ_b, data = ndd, family = "binomial")
 summary(nut_mod)
 summ(nut_mod, confint= TRUE, pvals = TRUE, digits = 3)
 odds.n.ends(nut_mod)
 
-#HH income adjusted (age, sex, stunted)
-adj_hhinc_mod<- glm(control_case_group ~ hh_income+age_months_b+sex+stunted_BL,
-                    data = ndd, family = "binomial")
-summary(adj_hhinc_mod)
-summ(adj_hhinc_mod, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(adj_hhinc_mod)
+plot(nut_mod, which=4, id.n=5, col="red") 
 
-#Wealth score unadjusted
-wealth_mod<- glm(control_case_group ~ WI_scores, data = ndd, family = "binomial")
-summary(wealth_mod)
-summ(wealth_mod, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(wealth_mod)
-#wealth score adjusted
-adj_wealth_mod<- glm(control_case_group ~ WI_scores+age_months_b+sex+stunted_BL, data = ndd, family = "binomial")
-summary(adj_wealth_mod)
-summ(adj_wealth_mod, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(adj_wealth_mod)
+no.out_nut<- data.frame(ndd$control_case_group, ndd$asf_yn_b, ndd$hhds_b, ndd$mmd_b, ndd$breastfeed_ever_yn_b, ndd$age_months_b, ndd$sex, ndd$HAZ_b)
 
+#removing outliers
+no.out_nut <-no.out_nut[-c(28),]
+no.out_nut <-no.out_nut[-c(123),]
+no.out_nut <-no.out_nut[-c(128),]
+no.out_nut <-no.out_nut[-c(174),]
+no.out_nut <-no.out_nut[-c(195),]
 
+no.out_nut_mod<- glm(ndd.control_case_group ~ ndd.asf_yn_b+ndd.mmd_b+ndd.hhds_b+ndd.breastfeed_ever_yn_b+ndd.age_months_b+ndd.sex+ndd.HAZ_b, data = no.out_nut, family = "binomial")
+summary(no.out_nut_mod)
+summ(no.out_nut_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(no.out_nut_mod)
 
-base_mod<- glm(control_case_group ~ age_months_b+sex+HAZ_b+F_toilet_type+
-                 F_maternal_education,
-                 data = ndd, family = "binomial")
-summary(base_mod)
-summ(base_mod, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(base_mod)
+#model with both nutrition and ses
 
 
 
 
-#SES model
-ses_mod<- glm(control_case_group ~age_months_b+sex+stunted_BL+F_toilet_type+F_maternal_education+,
-                 data = ndd, family = "binomial")
-summary(ses_mod)
-summ(ses_mod, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(ses_mod)
 
+#Cook's D plot
 
-#Nutrition model
-nut_mod<- glm(control_case_group ~micro_zinc,
-              data = ndd, family = "binomial")
-summary(nut_mod)
-summ(nut_mod, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(nut_mod)
-
-
-fullasset_mod<- glm(control_case_group ~age_months_b+sex+WI_quintile, data = ndd, family = "binomial")
-summary(fullasset_mod)
-summ(fullasset_mod, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(fullasset_mod)
-
-nutlogit <- glm(control_case_group ~ age_months_b+sex+breastfeed_ever_yn_b+breastfeeding_now+
-                  micro_vitamina+micro_vitamind+micro_iron+micro_zinc+
-                  mmd_b+hhds_b, data=ndd, family="binomial")
-summary(nutlogit)
-summ(nutlogit, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(nutlogit)
-
-toiletlogit<- glm(control_case_group ~ age_months_b+sex+F_toilet_type+toilet_location, data=ndd, family="binomial")
-summary(toiletlogit)
-summ(toiletlogit, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(toiletlogit)
-
-momlogit<- glm(control_case_group ~ age_months_b+sex+F_maternal_education+maternal_age, data=ndd, family="binomial")
-summary(momlogit)
-summ(momlogit, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(momlogit)
-
-childgrowlogit<- glm(control_case_group ~age_months_b+sex+stunted_BL, data=ndd, family="binomial")
-summary(childgrowlogit)
-summ(childgrowlogit, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(childgrowlogit)
-
-plot(childgrowlogit, which=4, id.n=5, col="red") 
-
-waz_id <- data.frame(ndd$id, ndd$WAZ_b, ndd$HAZ_b, ndd$WHZ_b)
-
-#Cook's D cutoff=0.0015 Or you can define use the rules described in the lecture
-cutoff <- 0.0015 
-
-#identify observations with a Cook's Distance greater than cutoff
-obs_no <- as.data.frame(cooks.distance(childgrowlogit)) %>%
-  mutate(obs_no=row_number()) %>%
-  filter(`cooks.distance(childgrowlogit)` > cutoff)
-
-#Let's exclude the values shown in the Cook's D plot, and see how the models compare.
-
-childgrowlogit.modex <- update(childgrowlogit,subset=c(-obs_no$obs_no))
-summary(childgrowlogit.modex)
 
 #compare coefficients between models with and without influential observations, #caveat model number of observations is not the same
-compareCoefs(bmi_catIncLogit, bmi_catIncLogit.modex)
+compareCoefs(hhinc_mod, hhinc_mod.modex) 
+
+#Various pseudo R squares, log likelihood, deviance, AIC, BIC
+blr_model_fit_stats(bmiLogit)
+
+#Hosmer lemeshow goodness of fit test: a significant p value indicates a bad fit
+blr_test_hosmer_lemeshow(bmiLogit)
+
+BRFSS_cc <- BRFSS_cc %>%
+  mutate(bmi.times.logbmi = bmi * log(bmi)) #create term to test linearity
+
+boxTidwellBMI <- glm(diabetes_binary ~ bmi + bmi.times.logbmi, data=BRFSS_cc, family="binomial") #Box Tidwell technique, test the assumption of linearity
+
+summary(boxTidwellBMI)
 
 
 ```
@@ -656,38 +612,7 @@ glm.RR <- function(GLM.RESULT, digits = 2) {
     TABLE     <- cbind(coef=COEF, CONFINT)
     TABLE.EXP <- round(exp(TABLE), digits)
 
-    colnames(TABLE.EXP)[1] <- LABEL
-
-    TABLE.EXP
-
-    
-d <- density(ndd$diarrhea_days_b) 
-plot(d, xlim=c(0,14))
-hist(nonmel$cases, breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))
-    
-dd_poisson <- glm(diarrhea_days_b ~ sex +age_months_b, family ="poisson", data = ndd)
-summary(dd_poisson) 
-
-dd_negbin <- glm.nb(diarrhea_days_b ~ sex +age_months_b+WI_scores, data = ndd)
-summary(dd_negbin) 
-
-lrtest(dd_poisson, dd_negbin)
-
-#overdispersion is present, will use neg binomial regression
-
-cov.dd_negbin <- vcovHC(dd_negbin, type="HC0")
-std.err <- sqrt(diag(cov.dd_negbin))
-
-#make a table of estimates from the model on the log scale
-r.est <- cbind(Estimate= exp(coef(dd_negbin)), "Robust SE" = std.err,
-"Pr(>|z|)" = 2 * pnorm(abs(coef(dd_negbin)/std.err), lower.tail=FALSE),
-LL = exp(coef(dd_negbin) - 1.96 * std.err),
-UL = exp(coef(dd_negbin) + 1.96 * std.err))
-options(digits=4)
-r.est
-
-
-
+ 
     
 ```
 
