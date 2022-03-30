@@ -110,49 +110,6 @@ label(ndd$wash_cat)<- "Bathing water source"
 ```{r}
 #Labeling and recoding nutrition variables
 
-ndd$micro_zinc <- ifelse(ndd$fish >= 1,1,
-                  ifelse(ndd$milk >= 1,1,
-                  ifelse(ndd$yogurt >= 1,1,
-                  ifelse(ndd$flesh_meat >= 1,1,
-                  ifelse(ndd$beans >= 1,1,
-                  ifelse(ndd$pumpkins >= 1,1,
-                  ifelse(ndd$zinc == 1,1, 0)))))))
-ndd$micro_zinc<- factor(ndd$micro_zinc, levels = c(0,1),
-                        labels = c("No","Yes"))
-label(ndd$micro_zinc)<- "Zinc consumption"
-
-ndd$micro_iron <- ifelse(ndd$beans >= 1,1,
-                  ifelse(ndd$darkgreen_vegetables >= 1,1,
-                  ifelse(ndd$flesh_meat >= 1,1,
-                  ifelse(ndd$potatoes >= 1,1,
-                  ifelse(ndd$eggs >= 1,1,
-                  ifelse(ndd$iron == 1,1,
-                  ifelse(ndd$chicken...89 >= 1,1, 0)))))))
-ndd$micro_iron<- factor(ndd$micro_iron, levels = c(0,1),
-                        labels = c("No","Yes"))
-label(ndd$micro_iron)<- "Iron consumption"
-
-ndd$micro_vitamind <- ifelse(ndd$milk >= 1,1,
-                      ifelse(ndd$fish >= 1,1,
-                      ifelse(ndd$eggs >= 1,1,
-                      ifelse(ndd$chicken...89 >= 1,1, 0))))
-ndd$micro_vitamind<- factor(ndd$micro_vitamind, levels = c(0,1),
-                            labels = c("No","Yes"))
-label(ndd$micro_vitamind)<- "Vitamin D consumption"
-
-ndd$micro_vitamina <- ifelse(ndd$darkgreen_vegetables >= 1,1,
-                      ifelse(ndd$pumpkins >= 1,1,
-                      ifelse(ndd$mango >= 1,1,
-                      ifelse(ndd$milk >= 1,1,
-                      ifelse(ndd$chicken...89 >= 1,1,
-                      ifelse(ndd$beans >= 1,1,
-                      ifelse(ndd$tomato >= 1,1,
-                      ifelse(ndd$fish >= 1,1,
-                      ifelse(ndd$eggs >= 1,1,
-                        ifelse(ndd$vitamin_a == 1,1, 0))))))))))
-ndd$micro_vitamina<- factor(ndd$micro_vitamina, levels = c(0,1),
-                            labels = c("No","Yes"))
-label(ndd$micro_vitamina)<- "Vitamin A consumption"
 
 #breastfeeding/nutrition
 ndd$breastfeeding_now<- factor(ndd$breastfeeding_now, levels = c(0,1),
@@ -286,11 +243,14 @@ ndd$F_house_roof<- factor(ndd$house_roof, levels = c(0,1),
 label(ndd$F_house_roof)<- "Roof type"
 
 #living in hh
-ndd$cat_num_liv_hh<- ifelse(ndd$number_living_hh<=5, 1,
+ndd$num_liv_hh<- ifelse(ndd$number_living_hh<=5, 1,
                               ifelse(ndd$number_living_hh>=6, 0, NA))
 ndd$cat_num_liv_hh<- factor(ndd$cat_num_liv_hh, levels = c(0,1),
                             labels = c("5 or less", "More than 5"))
 label(ndd$cat_num_liv_hh)<- "Number of people in household"
+
+class(ndd$num_liv_hh)
+table(ndd$num_liv_hh)
 
 
 #rooms in house
@@ -299,6 +259,7 @@ ndd$rooms_hh<- ifelse(ndd$rooms_hh>=3, 1,
 ndd$F_rooms_hh<- factor(ndd$rooms_hh, levels = c(0,1),
                         labels = c("2 rooms or less","3 rooms or more"))
 label(ndd$F_rooms_hh)<- "Household rooms"
+
 
 ```
 
@@ -340,7 +301,7 @@ library(mice)
 library(lattice)
 library(naniar)
 
-work_ndd<- data.frame(ndd$id, ndd$control_case_group, ndd$age_months_b, ndd$sex, ndd$maternal_education, ndd$maternal_age, ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b, ndd$stunted_BL, ndd$underweight_BL, ndd$wasted_BL, ndd$tv, ndd$refrigerator, ndd$electricity, ndd$rooms_hh, ndd$house_roof, ndd$house_floor, ndd$hh_income, ndd$toilet_type, ndd$shared_toilet, ndd$drink_cat, ndd$wash_cat, ndd$breastfeed_ever_yn_b, ndd$breastfeeding_now, ndd$micro_iron, ndd$micro_vitamina, ndd$micro_zinc, ndd$micro_vitamind, ndd$mmd_b, ndd$hhds_b)
+work_ndd<- data.frame(ndd$id, ndd$control_case_group, ndd$age_months_b, ndd$sex, ndd$maternal_education, ndd$maternal_age, ndd$WHZ_b, ndd$HAZ_b, ndd$WAZ_b, ndd$stunted_BL, ndd$underweight_BL, ndd$wasted_BL, ndd$tv, ndd$refrigerator, ndd$electricity, ndd$rooms_hh, ndd$house_roof, ndd$house_floor, ndd$hh_income, ndd$toilet_type, ndd$shared_toilet, ndd$drink_cat, ndd$wash_cat, ndd$breastfeed_ever_yn_b, ndd$breastfeeding_now, ndd$mmd_b, ndd$hhds_b)
 view(work_ndd)
 
 
@@ -356,7 +317,6 @@ miss_var_table(work_ndd)
 
 #All cases will be kept, NAs will be removed for analysis
 
-class(ndd$F_livestock)
 ```
 
 
@@ -478,21 +438,18 @@ pvalue <- function(x, ...) {
 tbl1<- table1(~ age_months_b + sex + HAZ_b + WAZ_b + 
                        WHZ_b + underweight_BL + stunted_BL + 
                        wasted_BL + F_maternal_education + 
-                       maternal_age + hh_income +  F_livestock + 
+                       maternal_age + hh_income + 
                        F_tv + F_refrigerator + F_electricity + 
-                       F_house_floor + F_house_roof + cat_num_liv_hh + F_rooms_hh +
-                       WI_scores + WI_quintile + F_toilet_type + 
-                       breastfeed_ever_yn_b + breastfeeding_now + micro_iron + 
-                       micro_vitamina + micro_vitamind + micro_zinc + 
-                       mmd_b + hhds_b + shared_toilet + toilet_location + 
-                       breastfeed_ever_yn_b + breastfeeding_now + micro_iron + 
-                       micro_vitamina + micro_vitamind + micro_zinc + mmd_b + hhds_b 
-                     |control_case_group, data = ndd, overall = F, render.missing=NULL, 
-                     render.categorical="FREQ (PCTnoNA%)", rowlabelhead = "Acute diarrhea", 
-              extra.col= list(`P-value`=pvalue), na.rm= TRUE)
+                       F_house_floor + F_house_roof+ F_rooms_hh +
+                       WI_quintile + F_toilet_type + 
+                       breastfeed_ever_yn_b + breastfeeding_now + asf_yn_b + 
+                       mmd_b + hhds_b + shared_toilet + toilet_location
+                     |control_case_group, data = ndd,
+                     rowlabelhead = "Acute diarrhea", extra.col= list(`P-value`=pvalue), overall = F)
 tbl1
 
-
+render.categorical="FREQ (PCTnoNA%)"
+, render.missing=NULL
 ```
 
 
@@ -507,29 +464,44 @@ library(tidyverse)
 library(dplyr)
 
 #SES models
-hhinc_mod<- glm(control_case_group ~ age_months_b+HAZ_b+hh_income+WI_scores+F_maternal_education+maternal_age+F_house_floor+F_toilet_type+F_electricity+F_livestock, data = ndd, family = "binomial")
-summary(hhinc_mod)
-summ(hhinc_mod, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(hhinc_mod)
+ses_mod<- glm(control_case_group ~ age_months_b+HAZ_b+sex+hh_income+WI_scores+F_maternal_education+maternal_age+F_house_floor+F_toilet_type, data = ndd, family = "binomial")
+summary(ses_mod)
+summ(ses_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(ses_mod)
 
-plot(hhinc_mod, which=4, id.n=5, col="red") 
+plot(ses_mod, which=4, id.n=5, col="red") 
+
+no.out_ses<- ndd
 
 #remove outliers
-no.out_nut <-no.out_nut[-c(23),]
-no.out_nut <-no.out_nut[-c(110),]
-no.out_nut <-no.out_nut[-c(103),]
-no.out_nut <-no.out_nut[-c(102),]
+no.out_ses <-no.out_ses[-c(23),]
+no.out_ses <-no.out_ses[-c(110),]
+no.out_ses <-no.out_ses[-c(103),]
+no.out_ses <-no.out_ses[-c(102),]
 
 #model w/o outliers
 
-no.out_hhinc_mod<- glm(ndd.control_case_group ~ ndd.age_months_b+ndd.HAZ_b+ndd.hh_income+ndd.WI_scores+ndd.F_maternal_education+ndd.maternal_age+ndd.F_house_floor+ndd.F_toilet_type+ndd.F_electricity+ndd.F_livestock, data = no.out_nut, family = "binomial")
-summary(no.out_hhinc_mod)
-summ(no.out_hhinc_mod, confint= TRUE, pvals = TRUE, digits = 3)
-odds.n.ends(no.out_hhinc_mod)
-odds.n.ends(hhinc_mod)
+no.out_ses_mod<- glm(control_case_group ~ age_months_b+HAZ_b+sex+
+                       hh_income+WI_scores+F_maternal_education+maternal_age+F_house_floor+F_toilet_type, data = no.out_ses, family = "binomial")
+summary(no.out_ses_mod)
+summ(no.out_ses_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(no.out_ses_mod)
 
-#compare both models
-compareCoefs(hhinc_mod, no.out_hhinc_mod) 
+#COR ses mod
+income.mod<- glm(control_case_group ~ hh_income, data = no.out_ses, family = "binomial")
+odds.n.ends(income.mod)
+
+wi_score.mod<- glm(control_case_group ~ WI_scores, data = no.out_ses, family = "binomial")
+odds.n.ends(wi_score.mod)
+
+mat_ed.mod<- glm(control_case_group ~ F_maternal_education, data = no.out_ses, family = "binomial")
+odds.n.ends(mat_ed.mod)
+
+floor.mod<- glm(control_case_group ~ F_house_floor, data = no.out_ses, family = "binomial")
+odds.n.ends(floor.mod)
+
+toilet.mod<- glm(control_case_group ~ F_toilet_type, data = no.out_ses, family = "binomial")
+odds.n.ends(toilet.mod)
 
 #nutrition model
 nut_mod<- glm(control_case_group ~ asf_yn_b+mmd_b+breastfeed_ever_yn_b+age_months_b+sex+HAZ_b, data = ndd, family = "binomial")
@@ -548,14 +520,47 @@ no.out_nut <-no.out_nut[-c(128),]
 no.out_nut <-no.out_nut[-c(174),]
 no.out_nut <-no.out_nut[-c(195),]
 
-no.out_nut_mod<- glm(ndd.control_case_group ~ ndd.asf_yn_b+ndd.mmd_b+ndd.hhds_b+ndd.breastfeed_ever_yn_b+ndd.age_months_b+ndd.sex+ndd.HAZ_b, data = no.out_nut, family = "binomial")
+no.out_nut_mod<- glm(ndd.control_case_group ~ ndd.asf_yn_b+ndd.mmd_b+ndd.breastfeed_ever_yn_b+ndd.age_months_b+ndd.sex+ndd.HAZ_b, data = no.out_nut, family = "binomial")
 summary(no.out_nut_mod)
 summ(no.out_nut_mod, confint= TRUE, pvals = TRUE, digits = 3)
 odds.n.ends(no.out_nut_mod)
 
+#COR nut mod
+asf.mod<- glm(ndd.control_case_group ~ ndd.asf_yn_b, data = no.out_nut, family = "binomial")
+odds.n.ends(asf.mod)
+
+mmd.mod<- glm(ndd.control_case_group ~ ndd.mmd_b, data = no.out_nut, family = "binomial")
+odds.n.ends(mmd.mod)
+
+bf.mod<- glm(ndd.control_case_group ~ ndd.breastfeed_ever_yn_b, data = no.out_nut, family = "binomial")
+odds.n.ends(bf.mod)
+
 #model with both nutrition and ses
 
+nut_ses_mod<- glm(control_case_group ~ age_months_b+sex+HAZ_b+asf_yn_b+WI_scores+
+                    maternal_age+F_house_floor, data = ndd, family = "binomial")
+summary(nut_ses_mod)
+summ(nut_ses_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(nut_ses_mod)
 
+plot(nut_ses_mod, which=4, id.n=5, col="red") 
+
+#remove outlier
+no.out_nut_ses<- ndd
+no.out_nut_ses <-no.out_nut_ses[-c(23),]
+no.out_nut_ses <-no.out_nut_ses[-c(190),]
+
+no.outnut_ses_mod<- glm(control_case_group ~ age_months_b+sex+HAZ_b+asf_yn_b+WI_scores+
+                    maternal_age+F_house_floor, data = no.out_nut_ses, family = "binomial")
+summary(no.outnut_ses_mod)
+summ(no.outnut_ses_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(no.outnut_ses_mod)
+
+combined_int_mod<- glm(control_case_group ~ 
+                         age_months_b+sex+HAZ_b+asf_yn_b+WI_scores+F_house_floor*maternal_age, data = no.out_nut_ses, family = "binomial")
+summary(combined_int_mod)
+summ(combined_int_mod, confint= TRUE, pvals = TRUE, digits = 3)
+odds.n.ends(combined_int_mod)
 
 
 
