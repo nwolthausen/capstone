@@ -245,7 +245,7 @@ label(ndd$F_house_roof)<- "Roof type"
 #living in hh
 ndd$num_liv_hh<- ifelse(ndd$number_living_hh<=5, 1,
                               ifelse(ndd$number_living_hh>=6, 0, NA))
-ndd$cat_num_liv_hh<- factor(ndd$cat_num_liv_hh, levels = c(0,1),
+ndd$cat_num_liv_hh<- factor(ndd$num_liv_hh, levels = c(0,1),
                             labels = c("5 or less", "More than 5"))
 label(ndd$cat_num_liv_hh)<- "Number of people in household"
 
@@ -441,15 +441,14 @@ tbl1<- table1(~ age_months_b + sex + HAZ_b + WAZ_b +
                        maternal_age + hh_income + 
                        F_tv + F_refrigerator + F_electricity + 
                        F_house_floor + F_house_roof+ F_rooms_hh +
-                       WI_quintile + F_toilet_type + 
-                       breastfeed_ever_yn_b + breastfeeding_now + asf_yn_b + 
-                       mmd_b + hhds_b + shared_toilet + toilet_location
+                       WI_scores + F_toilet_type + 
+                       breastfeed_ever_yn_b + asf_yn_b + 
+                       mmd_b + toilet_location
                      |control_case_group, data = ndd,
-                     rowlabelhead = "Acute diarrhea", extra.col= list(`P-value`=pvalue), overall = F)
+                     rowlabelhead = "Acute diarrhea", extra.col= list(`P-value`=pvalue), overall = F, footnote = 'SD = Standard deviation')
 tbl1
 
-render.categorical="FREQ (PCTnoNA%)"
-, render.missing=NULL
+
 ```
 
 
