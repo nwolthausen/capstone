@@ -445,7 +445,7 @@ tbl1<- table1(~ age_months_b + sex + HAZ_b + WAZ_b +
                        breastfeed_ever_yn_b + asf_yn_b + 
                        mmd_b + toilet_location
                      |control_case_group, data = ndd,
-                     rowlabelhead = "Acute diarrhea", extra.col= list(`P-value`=pvalue), overall = F, footnote = 'SD = Standard deviation')
+                     rowlabelhead = "Acute diarrhea", overall = F, footnote = 'SD = Standard deviation')
 tbl1
 
 
